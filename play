@@ -145,6 +145,11 @@ try:
     for module in getWithModules(remaining_args, play_env):
         cmdloader.load_play_module(module)
 
+    if os.path.exists('commands.py'):
+		print "~ !!!! loading commands.py in current directory !!!!"
+		print "~"
+		cmdloader.load_play_commands_file('commands.py')
+	
     if play_command in cmdloader.commands:
         for name in cmdloader.modules:
             module = cmdloader.modules[name]
