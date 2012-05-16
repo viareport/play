@@ -39,6 +39,17 @@ class CommandLoader:
                 print '~'
                 pass # No command to load in this module
 
+    def load_play_commands_file(self, commands_file):
+	if os.path.exists(commands_file):
+	    try:
+                mod = imp.load_source(".", commands_file)
+                self._load_cmd_from(mod)
+            except Exception, e:
+                print '~'
+                print '~ !! Error while loading %s: %s' % (commands_file, e)
+                print '~'
+                pass # No command to load in this module
+
     def _load_cmd_from(self, mod):
         if 'COMMANDS' in dir(mod):
             for name in mod.COMMANDS:
