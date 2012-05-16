@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir=".">
+
+    <property environment="env"/>
+    <property name="play.path" value="${env.PLAY_PATH}"/>
+    <property name="inativ.repository" value="${env.LOCAL_REPOSITORY}"/>
+    <import file="${play.path}/resources/application-build.xml"/>
+
+    <target name="check" unless="inativ.repository">
+        <fail message="Please specify Inativ repository path using -Dinativ.repository=/path/to/repository" />
+    </target>
+
+    <target name="rc" depends="build-module">
+        <play-python command="repository-commit -a -r ${inativ.repository}"/>
+    </target>
+
+    <target name="build-module" depends="deps">
+        <play-python command="build-module" />
+    </target>
+    <target name="deps">
+        <play-python command="deps --sync"/>
+    </target>
+</project>
