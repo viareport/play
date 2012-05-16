@@ -4,7 +4,7 @@ import yaml
 import shutil
 import os
 
-COMMANDS = ['repository_commit', 'rc']
+COMMANDS = ['repository-commit', 'rc']
 
 HELP = {
     'repository-commit': 'publish module in repository',
