@@ -7,11 +7,11 @@
     <property name="inativ.repository" value="${env.LOCAL_REPOSITORY}"/>
     <import file="${play.path}/resources/application-build.xml"/>
 
-    <target name="check" unless="inativ.repository">
+    <target name="check-repository" unless="inativ.repository">
         <fail message="Please specify Inativ repository path using -Dinativ.repository=/path/to/repository" />
     </target>
 
-    <target name="rc" depends="build-module">
+    <target name="rc" depends="build-module, check-repository, unit-test">
         <play-python command="repository-commit -a -r ${inativ.repository}"/>
     </target>
 
