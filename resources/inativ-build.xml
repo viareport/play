@@ -21,4 +21,5 @@
     <target name="deps">
         <play-python command="deps --sync"/>
     </target>
+    <target name="unit-test"/>
 </project>
