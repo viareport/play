@@ -6,6 +6,9 @@
     <property name="play.path" value="${env.PLAY_PATH}"/>
     <property name="inativ.repository" value="${env.LOCAL_REPOSITORY}"/>
     <import file="${play.path}/resources/application-build.xml"/>
+    <property name="phantom.path" value="${env.PHANTOM_PATH}"/>
+    <property name="build.dir" value="${basedir}/build" />
+    <property name="wait-test-js" value="500" />
 
     <target name="check-repository" unless="inativ.repository">
         <fail message="Please specify Inativ repository path using -Dinativ.repository=/path/to/repository" />
@@ -21,5 +24,24 @@
     <target name="deps">
         <play-python command="deps --sync"/>
     </target>
-    <target name="unit-test"/>
+    <target name="unit-test">
+		<echo message="Les tests unitaire ne sont pas lancés." />
+        <echo message="Modifier le fichier ${basedir}/build.xml en ajoutant la target unit-test pour les lancer." />
+	</target>
+    <target name="test">
+        <echo message="Default target test" />
+        <antcall target="unit-test"/>
+        <antcall target="js-test"/>
+    </target>
+    <target name="js-test">
+        <echo message="Run test javascript" />
+        <play-python command="start --%test"/>
+        <sleep milliseconds="${wait-test-js}" />
+        <echo message="Script qunit: ${play.path}/resources/test/qunit/run-qunit.js" />
+        <exec executable="${phantom.path}/phantomjs" failonerror="true">
+            <arg value="${play.path}/resources/test/qunit/run-qunit.js"/>
+            <arg value="http://localhost:9900/@qunit?select=all&amp;auto=yes"/>
+        </exec>
+        <play-python command="stop --%test"/>
+    </target>
 </project>
