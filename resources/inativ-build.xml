@@ -14,25 +14,29 @@
         <fail message="Please specify Inativ repository path using -Dinativ.repository=/path/to/repository" />
     </target>
 
-    <target name="rc" depends="build-module, check-repository, unit-test">
+    <target name="test">
+        <echo message="Default target test" />
+        <antcall target="unit-test"/>
+        <antcall target="js-test"/>
+    </target>
+
+    <target name="rc" depends="build-module, check-repository, test">
         <play-python command="repository-commit -a -r ${inativ.repository}"/>
     </target>
 
     <target name="build-module" depends="deps">
         <play-python command="build-module" />
     </target>
+
     <target name="deps">
         <play-python command="deps --sync"/>
     </target>
+
     <target name="unit-test">
 		<echo message="Les tests unitaire ne sont pas lancés." />
         <echo message="Modifier le fichier ${basedir}/build.xml en ajoutant la target unit-test pour les lancer." />
 	</target>
-    <target name="test">
-        <echo message="Default target test" />
-        <antcall target="unit-test"/>
-        <antcall target="js-test"/>
-    </target>
+
     <target name="js-test">
         <echo message="Run test javascript" />
         <play-python command="start --%test"/>
