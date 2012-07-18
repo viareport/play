@@ -310,14 +310,23 @@ def build(app, args, env):
     manifestF.write('version=%s\nframeworkVersions=%s\n' % (version, fwkMatch))
     manifestF.close()
 
+    print "expected lib name: " + 'play-' + name + '.jar'
+
     zip = zipfile.ZipFile(os.path.join(dist_dir, '%s.zip' % mv), 'w', zipfile.ZIP_STORED)
     for (dirpath, dirnames, filenames) in os.walk(app.path):
         if dirpath == dist_dir:
             continue
-        if dirpath.find(os.sep + '.') > -1 or dirpath.find('/tmp/') > -1  or dirpath.find('/test-result/') > -1 or dirpath.find('/logs/') > -1 or dirpath.find('/eclipse/') > -1 or dirpath.endswith('/test-result') or dirpath.endswith('/logs')  or dirpath.endswith('/eclipse') or dirpath.endswith('/nbproject'):
+        if dirpath.find(os.sep + '.') > -1 or dirpath.find('/tmp/') > -1 or dirpath.find('/test-result/') > -1 or dirpath.find('/logs/') > -1 or dirpath.find('/eclipse/') > -1 or dirpath.endswith('/test-result') or dirpath.endswith('/logs') or dirpath.endswith('/eclipse') or dirpath.endswith('/nbproject'):
             continue
+        if dirpath.startswith(os.path.join(app.path, 'modules')):
+            print "ignored module: " + dirpath   
+            continue
+
         for file in filenames:
             if file.find('~') > -1 or file.endswith('.iml') or file.startswith('.'):
+                continue
+            if dirpath == os.path.join(app.path, 'lib') and file != 'play-' + name + '.jar':
+                print "ignored lib: " + file
                 continue
             zip.write(os.path.join(dirpath, file), os.path.join(dirpath[len(app.path):], file))
     zip.close()
