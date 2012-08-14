@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.SessionImplementor;
 import org.hibernate.type.StringType;
 import org.hibernate.usertype.UserType;
 
@@ -22,15 +21,30 @@ import play.libs.IO;
 
 public class Blob implements BinaryField, UserType {
 
-    private String UUID;
-    private String type;
-    private File file;
+    protected String UUID;
+    protected String type;
+    protected File file;
 
     public Blob() {}
 
-    private Blob(String UUID, String type) {
+    protected Blob(String UUID, String type) {
         this.UUID = UUID;
         this.type = type;
+    }
+    
+    private Blob create(String UUID, String type) {
+        try {
+            return this.getClass().getConstructor(String.class, String.class).newInstance(UUID, type);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private Blob create() {
+        try {
+            return this.getClass().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public InputStream get() {
@@ -80,7 +94,7 @@ public class Blob implements BinaryField, UserType {
     }
 
     public Class returnedClass() {
-        return Blob.class;
+        return this.getClass();
     }
 
     private static boolean equal(Object a, Object b) {
@@ -103,9 +117,9 @@ public class Blob implements BinaryField, UserType {
        	String val = (String) StringType.INSTANCE.get(resultSet, names[0]);
 
         if(val == null || val.length() == 0 || !val.contains("|")) {
-            return new Blob();
+            return create();
         }
-        return new Blob(val.split("[|]")[0], val.split("[|]")[1]);
+        return create(val.split("[|]")[0], val.split("[|]")[1]);
     }
 
     public void nullSafeSet(PreparedStatement ps, Object o, int i) throws HibernateException, SQLException {
@@ -120,7 +134,7 @@ public class Blob implements BinaryField, UserType {
         if(o == null) {
             return null;
         }
-        return new Blob(((Blob)o).UUID, ((Blob)o).type);
+        return create(((Blob)o).UUID, ((Blob)o).type);
     }
 
     public boolean isMutable() {
@@ -139,13 +153,15 @@ public class Blob implements BinaryField, UserType {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    //
+    public File getStore() {
+        return getRootStore();
+    }
 
     public static String getUUID(String dbValue) {
        return dbValue.split("[|]")[0];
     }
 
-    public static File getStore() {
+    public static File getRootStore() {
         String name = Play.configuration.getProperty("attachments.path", "attachments");
         File store = null;
         if(new File(name).isAbsolute()) {
