@@ -34,7 +34,9 @@ public class PlayBuilder {
         Play.classes = new ApplicationClasses();
         Play.javaPath = new ArrayList<VirtualFile>();
         Play.applicationPath = new File(".");
+        Play.frameworkPath = new File("..");
         Play.classloader = new ApplicationClassloader();
+        System.setProperty("play.version", "1.2.5.x-viareport");
         Play.plugins = Collections.unmodifiableList( new ArrayList<PlayPlugin>());
 
     }

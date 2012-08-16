@@ -1,0 +1,15 @@
+self: inativ -> application-test 1.0.0
+
+require:
+    - inativ -> dependent-app 1.0.0-SNAPSHOT:
+        changing: true
+
+repositories:
+    - inativLocal:
+        type: local
+        descriptor: ${application.path}/../[module]/conf/dependencies.yml
+        artifact : ${application.path}/../[module]
+        alwaysCheckExactRevision: false     
+        contains:
+             - inativ -> *
+             - greenscript -> *

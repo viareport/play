@@ -1,0 +1,14 @@
+self: inativ -> application-envvar-test 1.0.0-52
+
+require:
+    - play 1.2.5-viareport
+    - inativ -> inativ_play_utils [1.0.0,)
+
+repositories:
+    - inativLocal:
+        type: local
+        descriptor: ${env.HOME}/../[module]/conf/dependencies.yml
+        artifact : ${env.HOME}/../[module]            
+        contains:
+             - inativ -> *
+             - greenscript -> *
