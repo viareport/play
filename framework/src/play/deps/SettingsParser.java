@@ -28,9 +28,15 @@ public class SettingsParser {
     }
     
     HumanReadyLogger logger;
+    private PropertyResolver propertyResolver = new PropertyResolver();
 
     public SettingsParser(HumanReadyLogger logger) {
         this.logger = logger;
+    }
+    
+    public SettingsParser(HumanReadyLogger logger, PropertyResolver propertyResolver) {
+        this(logger);
+        this.propertyResolver = propertyResolver;
     }
 
     public void parse(IvySettings settings, File desc) {
@@ -257,11 +263,19 @@ public class SettingsParser {
     private String substitute(String s) throws Oops {
         Matcher m = Pattern.compile("\\$\\{([^\\}]*)\\}").matcher((String)s); //search of ${something} group(1) => something
         while (m.find()) {
-            String propertyValue = System.getProperty(m.group(1));
+            String tokenName = m.group(1);
+            String propertyValue = null;
+            //Env variable
+            if (tokenName.startsWith("env.")) {
+                propertyValue = this.propertyResolver.resolveEnv(tokenName.split("\\.")[1]);
+            }
+            //General case or environment variable not defined
+            propertyValue = propertyValue == null ? this.propertyResolver.resolveSystem(tokenName) : propertyValue;
+            
             if(propertyValue != null){
-                s = s.replace("${" + m.group(1) + "}",propertyValue);
+                s = s.replace("${" + tokenName + "}",propertyValue);
             } else {
-                throw new Oops("Unknown property " + m.group(1) + " in " + s);
+                throw new Oops("Unknown property " + tokenName + " in " + s);
             }
         }
         return s;

@@ -1,0 +1,14 @@
+<ivysettings>
+  <property name="ivy.local.default.root"             value="${application.path}/../snapshot" override="false"/>
+  <property name="ivy.local.default.ivy.pattern"      value="[module]/[revision]/dependencies(-[classifier]).yml" override="false"/>
+  <property name="ivy.local.default.artifact.pattern" value="[module]/[revision]/[module].[revision](-[classifier]).[ext]" override="false"/>
+  <resolvers>
+    <filesystem name="myRepoMF" m2compatible="true" local="false" changingPattern=".*SNAPSHOT">
+      <ivy pattern="${ivy.local.default.root}/${ivy.local.default.ivy.pattern}" />
+      <artifact pattern="${ivy.local.default.root}/${ivy.local.default.artifact.pattern}" />
+    </filesystem>
+  </resolvers>
+  <modules>
+    <module organisation="inativ" name="*" resolver="myRepoMF"/>
+  </modules>
+</ivysettings>

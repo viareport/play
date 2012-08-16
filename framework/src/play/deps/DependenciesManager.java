@@ -9,8 +9,6 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.ivy.Ivy;
-import org.apache.ivy.core.cache.DefaultRepositoryCacheManager;
-import org.apache.ivy.core.cache.RepositoryCacheManager;
 import org.apache.ivy.core.report.ArtifactDownloadReport;
 import org.apache.ivy.core.report.ResolveReport;
 import org.apache.ivy.core.resolve.IvyNode;
@@ -294,6 +292,16 @@ public class DependenciesManager {
     }
 
     public ResolveReport resolve() throws Exception {
+        return resolve(true);
+    }
+    
+    public ResolveReport resolve(boolean download) throws Exception {
+        // Default ivy config see: http://play.lighthouseapp.com/projects/57987-play-framework/tickets/807
+        File ivyDefaultSettings = new File(userHome, ".ivy2/ivysettings.xml");
+        return resolve(download, ivyDefaultSettings);
+    }
+    
+    public ResolveReport resolve(boolean download, File ivyDefaultSettings) throws Exception {
 
         // Module
         ModuleDescriptorParserRegistry.getInstance().addParser(new YamlParser());
@@ -309,7 +317,7 @@ public class DependenciesManager {
         System.setProperty("play.path", framework.getAbsolutePath());
         
         // Ivy
-        Ivy ivy = configure();
+        Ivy ivy = configure(ivyDefaultSettings);
 
         // Clear the cache
         boolean clearcache = System.getProperty("clearcache") != null;
@@ -336,12 +344,13 @@ public class DependenciesManager {
         ResolveEngine resolveEngine = ivy.getResolveEngine();
         ResolveOptions resolveOptions = new ResolveOptions();
         resolveOptions.setConfs(new String[]{"default"});
+        resolveOptions.setDownload(download);
         resolveOptions.setArtifactFilter(FilterHelper.getArtifactTypeFilter(new String[]{"jar", "bundle", "source"}));
 
         return resolveEngine.resolve(ivyModule.toURI().toURL(), resolveOptions);
     }
 
-    public Ivy configure() throws Exception {
+    public Ivy configure(File ivyDefaultSettings) throws Exception {
 
         boolean verbose = System.getProperty("verbose") != null;
         boolean debug = System.getProperty("debug") != null;
@@ -359,8 +368,6 @@ public class DependenciesManager {
 
         Ivy ivy = Ivy.newInstance(ivySettings);
 
-        // Default ivy config see: http://play.lighthouseapp.com/projects/57987-play-framework/tickets/807
-        File ivyDefaultSettings = new File(userHome, ".ivy2/ivysettings.xml");
         if(ivyDefaultSettings.exists()) {
             ivy.configure(ivyDefaultSettings);
         }
