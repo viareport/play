@@ -27,7 +27,7 @@ public class Blob implements BinaryField, UserType {
 
     public Blob() {}
 
-    protected Blob(String UUID, String type) {
+    public Blob(String UUID, String type) {
         this.UUID = UUID;
         this.type = type;
     }
@@ -78,7 +78,7 @@ public class Blob implements BinaryField, UserType {
 
     public File getFile() {
         if(file == null) {
-            file = new File(getStore(), UUID);
+            file = new File(getDirectory(), UUID);
         }
         return file;
     }
@@ -153,15 +153,15 @@ public class Blob implements BinaryField, UserType {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public File getStore() {
-        return getRootStore();
+    public File getDirectory() {
+        return getStore();
     }
 
     public static String getUUID(String dbValue) {
        return dbValue.split("[|]")[0];
     }
 
-    public static File getRootStore() {
+    public static File getStore() {
         String name = Play.configuration.getProperty("attachments.path", "attachments");
         File store = null;
         if(new File(name).isAbsolute()) {
