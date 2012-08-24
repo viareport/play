@@ -29,7 +29,7 @@
     </target>
 
     <target name="deps">
-        <play-python command="deps --sync"/>
+        <play-python command="deps --sync --clearcache"/>
     </target>
 
     <target name="unit-test">
