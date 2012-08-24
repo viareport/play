@@ -22,6 +22,10 @@ public class JPAEnhancer extends Enhancer {
             return;
         }
 
+        if(hasAnnotation(ctClass, "play.db.jpa.NotEnhanced")) {
+            return;
+        }
+
         String entityName = ctClass.getName();
 
         // count
