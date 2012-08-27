@@ -20,7 +20,7 @@
         <antcall target="js-test"/>
     </target>
 
-    <target name="rc" depends="build-module, check-repository, test">
+    <target name="rc" depends="build-module, check-repository, clean, test">
         <play-python command="repository-commit -a -r ${inativ.repository}"/>
     </target>
 
@@ -30,6 +30,10 @@
 
     <target name="deps">
         <play-python command="deps --sync --clearcache"/>
+    </target>
+
+    <target name="clean">
+        <play-python command="clean"/>
     </target>
 
     <target name="unit-test">
