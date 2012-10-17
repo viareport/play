@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 import os
 import sys
 import re
@@ -9,6 +11,7 @@ import imp
 import time
 import urllib
 import yaml
+from collections import OrderedDict
 
 from play.utils import *
 
@@ -70,6 +73,27 @@ def get_repositories(play_base):
         if len(repos) > 0:
             return repos
     return [DEFAULT_REPO]
+
+class Dependency(object):
+    def __init__(self, yaml_deps):
+        self.self = yaml_deps['self']
+        self.require = yaml_deps['require']
+        self.repositories = yaml_deps['repositories']
+
+    def __getstate__(self):
+        d = OrderedDict()
+        d['self'] = self.self
+        d['require'] = self.require
+        d['repositories'] = self.repositories
+        return d
+
+
+def dependency_representer(self, data):
+    print("Data " + str(data))
+    return self.represent_mapping('tag:yaml.org,2002:map', data.__getstate__().items())
+
+yaml.add_representer(Dependency, dependency_representer)
+
 
 class Downloader(object):
     before = .0
@@ -252,14 +276,17 @@ def build(app, args, env):
     version = None
     name = None
     fwkMatch = None
+    suffix = None
 
     try:
-        optlist, args = getopt.getopt(args, '', ['framework=', 'version=', 'require='])
+        optlist, args = getopt.getopt(args, '', ['framework=', 'version=', 'suffix=', 'require='])
         for o, a in optlist:
             if o in ('--framework'):
                 ftb = a
             if o in ('--version'):
                 version = a
+            if o in ('--suffix'):
+                suffix = a
             if o in ('--require'):
                 fwkMatch = a
     except getopt.GetoptError, err:
@@ -267,19 +294,36 @@ def build(app, args, env):
         print "~ "
         sys.exit(-1)
 
+
+    dist_dir = os.path.join(app.path, 'dist')
+    if os.path.exists(dist_dir):
+        shutil.rmtree(dist_dir)
+    os.mkdir(dist_dir)
+
     deps_file = os.path.join(app.path, 'conf', 'dependencies.yml')
     if os.path.exists(deps_file):
         f = open(deps_file)
-        deps = yaml.load(f.read())
+        file_content = f.read();
+        deps = yaml.load(file_content)
         self = deps["self"].split(" ")
         versionCandidate = self.pop()
         name = self.pop()
         version = versionCandidate
+        if suffix:
+	       version = "%s-%s" % (version, suffix)
         for dep in deps["require"]:
             if isinstance(dep, basestring):
                 splitted = dep.split(" ")
                 if len(splitted) == 2 and splitted[0] == "play":
                     fwkMatch = splitted[1]
+        
+
+        new_deps_file = os.path.join(app.path, 'dist', 'dependencies.yml')
+
+        with open(new_deps_file, 'w') as new_deps:
+            deps["self"] = ' '.join([name, version])
+            modified_dependency_content = re.sub(r'(self: \w+ -> [-_a-zA-Z]+) [-.a-zA-Z0-9]+', r'\1 %s' % version, file_content)
+            new_deps.write(modified_dependency_content) 
         f.close
 
     if name is None:
@@ -300,20 +344,13 @@ def build(app, args, env):
     mv = '%s-%s' % (name, version)
     print("~ Packaging %s ... " % mv)
 
-    dist_dir = os.path.join(app.path, 'dist')
-    if os.path.exists(dist_dir):
-        shutil.rmtree(dist_dir)
-    os.mkdir(dist_dir)
-
     manifest = os.path.join(app.path, 'manifest')
     manifestF = open(manifest, 'w')
     manifestF.write('version=%s\nframeworkVersions=%s\n' % (version, fwkMatch))
     manifestF.close()
 
     zip = zipfile.ZipFile(os.path.join(dist_dir, '%s.zip' % mv), 'w', zipfile.ZIP_STORED)
-    for (dirpath, dirnames, filenames) in os.walk(app.path):
-        if dirpath == dist_dir:
-            continue
+    for (dirpath, dirnames, filenames) in os.walk(app.path):        
         if dirpath.find(os.sep + '.') > -1 or dirpath.find('/tmp/') > -1 or dirpath.find('/test-result/') > -1 or dirpath.find('/logs/') > -1 or dirpath.find('/eclipse/') > -1 or dirpath.endswith('/test-result') or dirpath.endswith('/logs') or dirpath.endswith('/eclipse') or dirpath.endswith('/nbproject'):
             continue
         if dirpath.startswith(os.path.join(app.path, 'modules')):
@@ -322,9 +359,20 @@ def build(app, args, env):
         for file in filenames:
             if file.find('~') > -1 or file.endswith('.iml') or file.startswith('.'):
                 continue
+            if (dirpath == os.path.join(app.path, 'dist')):
+                if file.endswith("dependencies.yml"):   
+                    print "dist dependecy.yml"
+                    conf_path = os.path.join(app.path, 'conf')
+                    zip.write(os.path.join(dirpath, file), os.path.join(conf_path[len(app.path):], file))
+                    continue
+                else:
+                    continue
+            if (dirpath ==  os.path.join(app.path, 'conf') and file.endswith('dependencies.yml')):
+                continue
             if dirpath == os.path.join(app.path, 'lib') and file != 'play-' + name + '.jar':
                 print "ignored lib: " + file
                 continue
+
             zip.write(os.path.join(dirpath, file), os.path.join(dirpath[len(app.path):], file))
     zip.close()
 
