@@ -10,6 +10,17 @@
     <property name="build.dir" value="${basedir}/build" />
     <property name="wait-test-js" value="2000" />
 
+    <condition property="suffix_arg" value="">
+       <not>  
+           <isset property="suffix"/>
+       </not>
+    </condition>
+
+    <condition property="suffix_arg" value="--suffix ${suffix}">
+        <isset property="suffix"/>
+    </condition>
+
+
     <target name="check-repository" unless="inativ.repository">
         <fail message="Please specify Inativ repository path using -Dinativ.repository=/path/to/repository" />
     </target>
@@ -21,11 +32,11 @@
     </target>
 
     <target name="rc" depends="build-module, check-repository, clean, test">
-        <play-python command="repository-commit -a -r ${inativ.repository}"/>
+        <play-python command="repository-commit -a -r ${inativ.repository} ${suffix_arg}"/>
     </target>
 
     <target name="build-module" depends="deps">
-        <play-python command="build-module" />
+        <play-python command="build-module ${suffix_arg}" />
     </target>
 
     <target name="deps">

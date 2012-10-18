@@ -18,6 +18,7 @@ def execute(**kargs):
 
     parser = OptionParser()
     parser.add_option("-r", "--repository", dest="repository",help="repository dir path")
+    parser.add_option("-s", "--suffix", dest="suffix",help="repository dir path")
     parser.add_option("-a", action="store_true", dest="all")
 
     (options, args) = parser.parse_args()
@@ -29,6 +30,7 @@ def execute(**kargs):
     app.check()
 
     repository = options.repository 
+    suffix = options.suffix 
 
     if repository:
         print '~ Found repository repository : %s' % repository
@@ -52,7 +54,11 @@ def execute(**kargs):
     #Loop over all found files
     if len(zip_files) >0:
         for file in zip_files:
+	    if (suffix):
+		module_version = "%s-%s" % (module_version, suffix)
+
             expected_file = "%s-%s.zip" % (app_name, module_version)
+
             if expected_file == file:
                 if options.all:
                     #We won't ask the user if he wants to commit
