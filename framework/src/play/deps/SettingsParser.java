@@ -93,7 +93,7 @@ public class SettingsParser {
             System.out.println("~");
             System.out.println("~ \t" + e.getMessage());
             System.out.println("~");
-            throw new RuntimeException("Malformed dependencies.yml descriptor");
+            throw new RuntimeException("Malformed dependencies.yml descriptor", e);
         }
     }
 
