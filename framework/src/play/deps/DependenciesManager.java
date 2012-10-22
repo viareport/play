@@ -3,19 +3,25 @@ package play.deps;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileFilter;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.ivy.Ivy;
+import org.apache.ivy.core.module.descriptor.ModuleDescriptor;
+import org.apache.ivy.core.publish.PublishOptions;
 import org.apache.ivy.core.report.ArtifactDownloadReport;
 import org.apache.ivy.core.report.ResolveReport;
 import org.apache.ivy.core.resolve.IvyNode;
 import org.apache.ivy.core.resolve.ResolveEngine;
 import org.apache.ivy.core.resolve.ResolveOptions;
 import org.apache.ivy.core.settings.IvySettings;
+import org.apache.ivy.plugins.parser.ModuleDescriptorParser;
 import org.apache.ivy.plugins.parser.ModuleDescriptorParserRegistry;
+import org.apache.ivy.plugins.repository.url.URLResource;
 import org.apache.ivy.util.DefaultMessageLogger;
 import org.apache.ivy.util.Message;
 import org.apache.ivy.util.filter.FilterHelper;
@@ -297,8 +303,12 @@ public class DependenciesManager {
     
     public ResolveReport resolve(boolean download) throws Exception {
         // Default ivy config see: http://play.lighthouseapp.com/projects/57987-play-framework/tickets/807
+        return resolve(download, getDefaultIvySettingsConfig());
+    }
+
+    public File getDefaultIvySettingsConfig() {
         File ivyDefaultSettings = new File(userHome, ".ivy2/ivysettings.xml");
-        return resolve(download, ivyDefaultSettings);
+        return ivyDefaultSettings;
     }
     
     public ResolveReport resolve(boolean download, File ivyDefaultSettings) throws Exception {
@@ -365,8 +375,12 @@ public class DependenciesManager {
         ivySettings.addConflictManager("playConflicts", conflictManager);
         ivySettings.addConflictManager("defaultConflicts", conflictManager.deleguate);
         ivySettings.setDefaultConflictManager(conflictManager);
+        //TODO configure using settings ???
+        ivySettings.configureDefaultVersionMatcher();
+        ivySettings.addVersionMatcher(new LatestVersionPatternMatcher());
 
         Ivy ivy = Ivy.newInstance(ivySettings);
+        
 
         if(ivyDefaultSettings.exists()) {
             ivy.configure(ivyDefaultSettings);
@@ -384,5 +398,24 @@ public class DependenciesManager {
         ivy.pushContext();
 
         return ivy;
+    }
+
+    public Collection publish(File ivyDefaultSettings, String resolverName) throws Exception {
+        Ivy ivy = configure(ivyDefaultSettings);
+        
+        ModuleDescriptorParserRegistry.getInstance().addParser(new YamlParser());
+        File ivyModule = new File(application, "conf/dependencies.yml");
+        URL ivySource = ivyModule.toURI().toURL();
+        URLResource res = new URLResource(ivySource );
+        ModuleDescriptorParser parser = ModuleDescriptorParserRegistry.getInstance().getParser(res);
+        ModuleDescriptor md = parser.parseDescriptor(ivy.getSettings(), ivySource, true);
+        ArrayList srcArtifactPattern = new ArrayList();
+        String srcIvyPattern = "dist/ivy.xml";
+        
+        String ivyFile = new File(application, "dist/ivy.xml").getAbsolutePath();
+        srcArtifactPattern.add(ivyFile);
+        ivy.deliver(md.getModuleRevisionId(), md.getModuleRevisionId().getRevision(), ivyFile);
+        
+        return ivy.publish(md.getModuleRevisionId(), srcArtifactPattern, resolverName, new PublishOptions().setSrcIvyPattern(ivyFile).setUpdate(true));
     }
 }
