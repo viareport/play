@@ -301,7 +301,7 @@ def build(app, args, env):
 
         with open(new_deps_file, 'w') as new_deps:
             deps["self"] = ' '.join([name, version])
-            modified_dependency_content = re.sub(r'(self: \w+ -> [-_a-zA-Z]+) [-.a-zA-Z0-9]+', r'\1 %s' % version, file_content)
+            modified_dependency_content = re.sub(r'(self[ ]*: \w+ -> [-_a-zA-Z]+) [-.a-zA-Z0-9]+', r'\1 %s' % version, file_content)
             new_deps.write(modified_dependency_content) 
         f.close
 
@@ -349,6 +349,7 @@ def build(app, args, env):
             if (dirpath ==  os.path.join(app.path, 'conf') and file.endswith('dependencies.yml')):
                 continue
             if dirpath == os.path.join(app.path, 'lib') and file != 'play-' + name + '.jar':
+		print name
                 print "ignored lib: " + file
                 continue
 
