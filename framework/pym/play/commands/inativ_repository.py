@@ -40,7 +40,7 @@ def execute(**kargs):
         print '~ '
         sys.exit(0)
 
-    from_dir_deps = os.path.join(app.path, 'conf')
+    from_dir_deps = os.path.join(app.path, 'dist')
     deps_file = 'dependencies.yml'
     app_name, module_version = extract_name_version(app, os.path.join(from_dir_deps, deps_file))
 
@@ -54,10 +54,9 @@ def execute(**kargs):
     #Loop over all found files
     if len(zip_files) >0:
         for file in zip_files:
-	    if (suffix):
-		module_version = "%s-%s" % (module_version, suffix)
 
             expected_file = "%s-%s.zip" % (app_name, module_version)
+	    print "Expected %s found %s" % (expected_file, file)
 
             if expected_file == file:
                 if options.all:
