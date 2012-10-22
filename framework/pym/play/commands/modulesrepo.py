@@ -11,7 +11,6 @@ import imp
 import time
 import urllib
 import yaml
-from collections import OrderedDict
 
 from play.utils import *
 
@@ -73,26 +72,6 @@ def get_repositories(play_base):
         if len(repos) > 0:
             return repos
     return [DEFAULT_REPO]
-
-class Dependency(object):
-    def __init__(self, yaml_deps):
-        self.self = yaml_deps['self']
-        self.require = yaml_deps['require']
-        self.repositories = yaml_deps['repositories']
-
-    def __getstate__(self):
-        d = OrderedDict()
-        d['self'] = self.self
-        d['require'] = self.require
-        d['repositories'] = self.repositories
-        return d
-
-
-def dependency_representer(self, data):
-    print("Data " + str(data))
-    return self.represent_mapping('tag:yaml.org,2002:map', data.__getstate__().items())
-
-yaml.add_representer(Dependency, dependency_representer)
 
 
 class Downloader(object):
