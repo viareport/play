@@ -349,7 +349,6 @@ def build(app, args, env):
             if (dirpath ==  os.path.join(app.path, 'conf') and file.endswith('dependencies.yml')):
                 continue
             if dirpath == os.path.join(app.path, 'lib') and file != 'play-' + name + '.jar':
-		print name
                 print "ignored lib: " + file
                 continue
 
