@@ -14,7 +14,12 @@ public class LatestVersionPatternMatcherTest {
         assertAccept("1.0.0-dev", "1.0.0-dev");
         assertAccept("1.0.0-dev", "1.0.0-dev200");
         assertAccept("1.0.0-dev", "1.0.0");
+        
         assertAccept("1.0.0-dev", "working@invativLocal");
+        assertAccept("1.0.0-RC", "working@invativLocal");
+        
+        assertAccept("1.0.0-RC", "1.0.0-RC1");
+        assertAccept("1.0.0-RC", "1.0.0");
     }
     
     @Test
@@ -24,10 +29,26 @@ public class LatestVersionPatternMatcherTest {
     }
     
     @Test
+    public void testRejectDifferentSuffix() {
+        assertReject("1.0.1-dev", "1.0.0-RC");
+        assertReject("1.0.1-RC", "1.0.0-dev");
+    }
+    
+    @Test
+    public void testAssertRejectRevisionsWithOtherPatterns() {
+        assertReject("1.0.0-dev", "1.0.0-255");
+        assertReject("1.0.0-RC", "1.0.0-255");
+    }
+    
+    @Test
     public void testMatcherDetectDynamicRevisionOnSuffix() {
         assertDynamic("1.0.0-dev", true);
         assertDynamic("1.0.0-dev262", false);
+        
         assertDynamic("1.0.0", false);
+        
+        assertDynamic("1.0.0-RC2", false);
+        assertDynamic("1.0.0-RC", true);
     }
         
     // assertion helper methods
