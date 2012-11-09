@@ -15,8 +15,10 @@ import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
+
 import play.Logger;
 import play.Play;
+import play.test.behaviour.BehaviourTest;
 import play.vfs.VirtualFile;
 
 /**
@@ -36,6 +38,22 @@ public class TestEngine {
 
     public static List<Class> allUnitTests() {
         List<Class> classes = Play.classloader.getAssignableClasses(Assert.class);
+        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
+            Class c = it.next();
+            if (Modifier.isAbstract(c.getModifiers())) {
+                it.remove();
+            } else {
+                if (FunctionalTest.class.isAssignableFrom(c)) {
+                    it.remove();
+                }
+            }
+        }
+        Collections.sort(classes, classNameComparator);
+        return classes;
+    }
+
+    public static List<Class> allJBehaveTests() {
+        List<Class> classes = Play.classloader.getAnnotatedClasses(BehaviourTest.class);
         for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
             Class c = it.next();
             if (Modifier.isAbstract(c.getModifiers())) {
@@ -133,7 +151,8 @@ public class TestEngine {
         @Override
         public void testStarted(Description description) throws Exception {
             current = new TestResult();
-            current.name = description.getDisplayName().substring(0, description.getDisplayName().indexOf("("));
+            current.name = description.getDisplayName().substring(0,
+                description.getDisplayName().indexOf("("));
             current.time = System.currentTimeMillis();
         }
 
@@ -151,13 +170,17 @@ public class TestEngine {
             if (failure.getException() instanceof AssertionError) {
                 current.error = "Failure, " + failure.getMessage();
             } else {
-                current.error = "A " + failure.getException().getClass().getName() + " has been caught, " + failure.getMessage();
+                current.error = "A " + failure.getException().getClass().getName() + " has been caught, "
+                    + failure.getMessage();
             }
             current.trace = failure.getTrace();
             for (StackTraceElement stackTraceElement : failure.getException().getStackTrace()) {
                 if (stackTraceElement.getClassName().equals(className)) {
-                    current.sourceInfos = "In " + Play.classes.getApplicationClass(className).javaFile.relativePath() + ", line " + stackTraceElement.getLineNumber();
-                    current.sourceCode = Play.classes.getApplicationClass(className).javaSource.split("\n")[stackTraceElement.getLineNumber() - 1];
+                    current.sourceInfos = "In "
+                        + Play.classes.getApplicationClass(className).javaFile.relativePath() + ", line "
+                        + stackTraceElement.getLineNumber();
+                    current.sourceCode = Play.classes.getApplicationClass(className).javaSource.split("\n")[stackTraceElement
+                        .getLineNumber() - 1];
                     current.sourceFile = Play.classes.getApplicationClass(className).javaFile.relativePath();
                     current.sourceLine = stackTraceElement.getLineNumber();
                 }
@@ -186,13 +209,13 @@ public class TestEngine {
             time = result.time + time;
             this.results.add(result);
             if (result.passed) {
-              success++;
+                success++;
             } else {
-              if (result.error.startsWith("Failure")) {
-                failures++;
-              } else {
-                errors++;
-              }
+                if (result.error.startsWith("Failure")) {
+                    failures++;
+                } else {
+                    errors++;
+                }
             }
         }
     }

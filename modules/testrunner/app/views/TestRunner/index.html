@@ -599,6 +599,21 @@
             %{ tis = true; }%
             #{/if}
             
+            #{if jBehaveTests}
+            <h2><span>There ${jBehaveTests.size().pluralize('is', 'are')} ${jBehaveTests.size()} jbehave test${jBehaveTests.size().pluralize()},</span></h2>
+            <ul>
+                #{list items:jBehaveTests, as:'test'}
+                <li>
+                    <div class="test" id="${test.name}.class">
+                        <span class="touch">+</span><a href="@{TestRunner.run(test.name+'.class')}">${test.name.replace('.','/').replace('$','.')}</a>
+                        <div class="testResult"></div>
+                    </div>
+                </li>
+                #{/list}
+            </ul>
+            %{ tis = true; }%
+            #{/if}
+            
             #{if functionalTests}
             <h2><span>${tis ? '' : 'There '+functionalTests.size().pluralize('is', 'are')} ${tis && !seleniumTests ? 'and' : ''} ${functionalTests.size()} functional test${functionalTests.size().pluralize()},</span></h2>
             <ul>
