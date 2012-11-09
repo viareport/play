@@ -3,26 +3,30 @@ package controllers;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import play.Logger;
 import play.Play;
 import play.cache.Cache;
 import play.libs.IO;
 import play.libs.Mail;
-import play.mvc.*;
+import play.mvc.Controller;
+import play.mvc.Router;
 import play.templates.Template;
 import play.templates.TemplateLoader;
-import play.test.*;
-import play.vfs.*;
+import play.test.TestEngine;
+import play.vfs.VirtualFile;
 
 public class TestRunner extends Controller {
 
     public static void index() {
         List<Class> unitTests = TestEngine.allUnitTests();
+        List<Class> jBehaveTests = TestEngine.allJBehaveTests();
         List<Class> functionalTests = TestEngine.allFunctionalTests();
         List<String> seleniumTests = TestEngine.allSeleniumTests();
-        render(unitTests, functionalTests, seleniumTests);
+        render(unitTests, jBehaveTests, functionalTests, seleniumTests);
     }
 
     public static void list() {
@@ -30,16 +34,22 @@ public class TestRunner extends Controller {
         PrintWriter p = new PrintWriter(list);
         p.println("---");
         p.println(Play.getFile("test-result").getAbsolutePath());
-        p.println(Router.reverse(Play.modules.get("_testrunner").child("/public/test-runner/selenium/TestRunner.html")));
-        for(Class c : TestEngine.allUnitTests()) {
+        p.println(Router.reverse(Play.modules.get("_testrunner").child(
+            "/public/test-runner/selenium/TestRunner.html")));
+        for (Class c : TestEngine.allUnitTests()) {
             p.println(c.getName() + ".class");
         }
-        for(Class c : TestEngine.allFunctionalTests()) {
+        for (Class c : TestEngine.allJBehaveTests()) {
+
             p.println(c.getName() + ".class");
         }
-        for(String c : TestEngine.allSeleniumTests()) {
+        for (Class c : TestEngine.allFunctionalTests()) {
+            p.println(c.getName() + ".class");
+        }
+        for (String c : TestEngine.allSeleniumTests()) {
             p.println(c);
         }
+
         renderText(list);
     }
 
@@ -49,7 +59,7 @@ public class TestRunner extends Controller {
             if (!testResults.exists()) {
                 testResults.mkdir();
             }
-            for(File tr : testResults.listFiles()) {
+            for (File tr : testResults.listFiles()) {
                 if ((tr.getName().endsWith(".html") || tr.getName().startsWith("result.")) && !tr.delete()) {
                     Logger.warn("Cannot delete %s ...", tr.getAbsolutePath());
                 }
@@ -70,18 +80,20 @@ public class TestRunner extends Controller {
             options.put("test", test);
             options.put("results", results);
             String result = resultTemplate.render(options);
-            File testResults = Play.getFile("test-result/" + test + (results.passed ? ".passed" : ".failed") + ".html");
+            File testResults = Play.getFile("test-result/" + test + (results.passed ? ".passed" : ".failed")
+                + ".html");
             IO.writeContent(result, testResults);
             try {
                 // Write xml output
                 options.remove("out");
                 resultTemplate = TemplateLoader.load("TestRunner/results-xunit.xml");
                 String resultXunit = resultTemplate.render(options);
-                File testXunitResults = Play.getFile("test-result/TEST-" + test.substring(0, test.length()-6) + ".xml");
+                File testXunitResults = Play.getFile("test-result/TEST-"
+                    + test.substring(0, test.length() - 6) + ".xml");
                 IO.writeContent(resultXunit, testXunitResults);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Logger.error(e, "Cannot ouput XML unit output");
-            }            
+            }
             response.contentType = "text/html";
             renderText(result);
         }
@@ -92,9 +104,9 @@ public class TestRunner extends Controller {
         if (test.endsWith(".test.html")) {
             File testFile = Play.getFile("test/" + test);
             if (!testFile.exists()) {
-                for(VirtualFile root : Play.roots) {
-                    File moduleTestFile = Play.getFile(root.relativePath()+"/test/" + test);
-                    if(moduleTestFile.exists()) {
+                for (VirtualFile root : Play.roots) {
+                    File moduleTestFile = Play.getFile(root.relativePath() + "/test/" + test);
+                    if (moduleTestFile.exists()) {
                         testFile = moduleTestFile;
                     }
                 }
@@ -143,19 +155,18 @@ public class TestRunner extends Controller {
 
     public static void mockEmail(String by) {
         String email = Mail.Mock.getLastMessageReceivedBy(by);
-        if(email == null) {
+        if (email == null) {
             notFound();
         }
         renderText(email);
     }
 
-	public static void cacheEntry(String key){
-    	String value = Cache.get(key,String.class);
-    	if(value == null){
-    		notFound();
-    	}
-    	renderText(value);
+    public static void cacheEntry(String key) {
+        String value = Cache.get(key, String.class);
+        if (value == null) {
+            notFound();
+        }
+        renderText(value);
     }
-	
-}
 
+}
