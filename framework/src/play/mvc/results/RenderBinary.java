@@ -118,6 +118,8 @@ public class RenderBinary extends Result {
     @Override
     public void apply(Request request, Response response) {
         try {
+            applyIE8DownloadHTTPHeaders(response);
+            
             if (name != null) {
                 setContentTypeIfNotSet(response, MimeTypes.getContentType(name));
             }
@@ -182,6 +184,11 @@ public class RenderBinary extends Result {
         } catch (Exception e) {
             throw new UnexpectedException(e);
         }
+    }
+
+    private void applyIE8DownloadHTTPHeaders(Response response) {
+        response.setHeader("Cache-Control", "");
+        response.setHeader("Pragma", "");
     }
 
     private boolean canAsciiEncode(String string) {
