@@ -18,7 +18,7 @@ public abstract class DataParser {
         parsers.put("application/x-www-form-urlencoded", new UrlEncodedParser());
         parsers.put("multipart/form-data", new ApacheMultipartParser());
         parsers.put("application/xml", new TextParser());
-        parsers.put("application/json", new TextParser());
+        parsers.put("application/json", new JsonParser());
     }
 
     public static void putMapEntry(Map<String, String[]> map, String name, String value) {
