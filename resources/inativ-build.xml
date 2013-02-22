@@ -68,4 +68,37 @@
         <play-python command="stop --%test"/>
     </target>
 
+    <!-- CONF SONAR -->
+
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" />
+
+    <target name="check-project-version" unless="project.version">
+        <fail message="Missing property 'project.version'" />
+    </target>
+
+    <target name="sonar-java">
+        <property name="sonar.sources" value="app,test,src,public/javascripts" />
+        <property name="sonar.host.url" value="http://192.168.1.107:9000" />
+        <property name="sonar.dynamicAnalysis" value="reuseReports" />
+        <property name="sonar.surefire.reportsPath" value="test-result" />
+        <property name="sonar.language" value="java" />
+        <property name="sonar.java.coveragePlugin" value="cobertura" />
+        <property name="sonar.cobertura.reportPath" value="test-result/code-coverage/coverage.xml" />
+        <property name="sonar.projectName" value="${ant.project.name}" />
+        <property name="sonar.branch" value="Java" />
+        <sonar:sonar key="inativ:${ant.project.name}" version="${project.version}" xmlns:sonar="antlib:org.sonar.ant" />
+    </target>
+
+    <target name="sonar-js">
+        <property name="sonar.sources" value="public/javascripts,app/views/" />
+        <property name="sonar.host.url" value="http://192.168.1.107:9000" />
+        <property name="sonar.language" value="js" />
+        <property name="sonar.projectName" value="${ant.project.name}" />
+        <property name="sonar.branch" value="JS" />
+        <sonar:sonar key="inativ:${ant.project.name}" version="${project.version}" xmlns:sonar="antlib:org.sonar.ant" />
+    </target>
+
+    <target name="run-sonar-java" depends="check-project-version, unit-test, sonar-java" />
+    <target name="run-sonar-js" depends="check-project-version, sonar-js" />
+
 </project>
