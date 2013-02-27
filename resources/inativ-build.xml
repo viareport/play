@@ -99,7 +99,7 @@
         <sonar:sonar key="inativ:${ant.project.name}" version="${project.version}" xmlns:sonar="antlib:org.sonar.ant" />
     </target>
 
-    <target name="run-sonar-java" depends="check-project-version, unit-test, sonar-java" />
+    <target name="run-sonar-java" depends="check-project-version, build-module, sonar-java" />
     <target name="run-sonar-js" depends="check-project-version, sonar-js" />
 
 </project>
