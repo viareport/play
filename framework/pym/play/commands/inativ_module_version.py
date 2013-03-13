@@ -24,7 +24,7 @@ def execute(**kargs):
     
     app.check()
 
-    from_dir_deps = os.path.join(app.path, 'dist')
+    from_dir_deps = os.path.join(app.path, 'conf')
     deps_file = 'dependencies.yml'
     _, version = extract_name_version(app, os.path.join(from_dir_deps, deps_file))
     print version
