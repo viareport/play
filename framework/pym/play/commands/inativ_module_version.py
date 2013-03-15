@@ -31,6 +31,9 @@ def execute(**kargs):
 
 def extract_name_version(app, deps_file):
     #Getting module version from dependencies file
+
+    module_version = None
+
     if os.path.exists(deps_file):
         f = open(deps_file)
         deps = yaml.load(f.read())

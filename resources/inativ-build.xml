@@ -77,7 +77,7 @@
     </target>
 
     <target name="sonar-java">
-        <property name="sonar.sources" value="app,test,src,public/javascripts" />
+        <property name="sonar.sources" value="app,test,src" />
         <property name="sonar.host.url" value="http://192.168.1.107:9000" />
         <property name="sonar.dynamicAnalysis" value="reuseReports" />
         <property name="sonar.surefire.reportsPath" value="test-result" />
@@ -90,8 +90,17 @@
     </target>
 
     <target name="sonar-js">
-        <property name="sonar.sources" value="public/javascripts,app/views/" />
-        <property name="sonar.exclusions" value="lib/*,lib/**,tests/vendor/**" />
+        <property name="sonar.sources" value="${sonar.js.sources}" />
+        <property name="sonar.exclusions" value="${sonar.js.exclusions}" />
+	<property name="sonar.host.url" value="http://192.168.1.107:9000" />
+        <property name="sonar.language" value="js" />
+        <property name="sonar.projectName" value="${ant.project.name}" />
+        <property name="sonar.branch" value="JS" />
+        <sonar:sonar key="inativ:${ant.project.name}" version="${project.version}" xmlns:sonar="antlib:org.sonar.ant" />
+    </target>
+
+     <target name="sonar-js-newway">
+        <property name="sonar.sources" value="assets/javascripts/app/" />
         <property name="sonar.host.url" value="http://192.168.1.107:9000" />
         <property name="sonar.language" value="js" />
         <property name="sonar.projectName" value="${ant.project.name}" />
@@ -99,7 +108,10 @@
         <sonar:sonar key="inativ:${ant.project.name}" version="${project.version}" xmlns:sonar="antlib:org.sonar.ant" />
     </target>
 
+
     <target name="run-sonar-java" depends="check-project-version, build-module, sonar-java" />
     <target name="run-sonar-js" depends="check-project-version, sonar-js" />
+    <target name="run-sonar-js-newway" depends="check-project-version, sonar-js-newway" />
+
 
 </project>
