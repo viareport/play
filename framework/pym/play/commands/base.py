@@ -9,6 +9,7 @@ import urllib2
 import webbrowser
 import time
 import signal
+from optparse import OptionParser
 
 from play.utils import *
 
@@ -31,6 +32,16 @@ def execute(**kargs):
     env = kargs.get("env")
     cmdloader = kargs.get("cmdloader")
 
+    package=""
+    try:
+        optlist, args = getopt.getopt(args, '', ['package='])
+        for o, a in optlist:
+            package=a
+    except getopt.GetoptError, err:
+        print "~ %s" % str(err)
+        print "~ "
+        sys.exit(-1)
+    
     if command == 'id':
         id(env)
     if command == 'new' or command == 'new,run':
@@ -42,7 +53,7 @@ def execute(**kargs):
     if command == 'test':
         test(app, args)
     if command == 'auto-test' or command == 'autotest':
-        autotest(app, args)
+        autotest(app, args, package)
     if command == 'modules':
         show_modules(app, args)
 
@@ -182,7 +193,7 @@ def test(app, args):
         sys.exit(-1)
     print
 
-def autotest(app, args):
+def autotest(app, args, package):
     app.check()
     print "~ Running in test mode"
     print "~ Ctrl+C to stop"
@@ -253,7 +264,7 @@ def autotest(app, args):
     cp_args = ':'.join(fpcp)
     if os.name == 'nt':
         cp_args = ';'.join(fpcp)    
-    java_cmd = [app.java_path(), '-classpath', cp_args, '-Dapplication.url=%s://localhost:%s' % (protocol, http_port), '-DheadlessBrowser=%s' % (headless_browser), 'play.modules.testrunner.FirePhoque']
+    java_cmd = [app.java_path(), '-classpath', cp_args, '-Dapplication.url=%s://localhost:%s' % (protocol, http_port), '-DheadlessBrowser=%s' % (headless_browser), 'play.modules.testrunner.FirePhoque', package]
     if protocol == 'https':
         java_cmd.insert(-1, '-Djavax.net.ssl.trustStore=' + app.readConf('keystore.file'))
     try:
