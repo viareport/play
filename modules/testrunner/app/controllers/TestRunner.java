@@ -30,26 +30,40 @@ public class TestRunner extends Controller {
     }
 
     public static void list() {
+        String testPackage = params.get("package");
+
         StringWriter list = new StringWriter();
         PrintWriter p = new PrintWriter(list);
         p.println("---");
+
         p.println(Play.getFile("test-result").getAbsolutePath());
         p.println(Router.reverse(Play.modules.get("_testrunner").child(
             "/public/test-runner/selenium/TestRunner.html")));
-        for (Class c : TestEngine.allUnitTests()) {
+        List<Class> unitTests;
+        List<Class> functionalTests;
+        List<Class> jbehaveTests;
+        List<String> seleniumTests = TestEngine.allSeleniumTests();
+        if (testPackage != null) {
+            unitTests = TestEngine.allUnitTests(testPackage);
+            jbehaveTests = TestEngine.allJBehaveTests(testPackage);
+            functionalTests = TestEngine.allFunctionalTests(testPackage);
+        } else {
+            unitTests = TestEngine.allUnitTests();
+            jbehaveTests = TestEngine.allJBehaveTests();
+            functionalTests = TestEngine.allFunctionalTests();
+        }
+        for (Class c : unitTests) {
             p.println(c.getName() + ".class");
         }
-        for (Class c : TestEngine.allJBehaveTests()) {
-
+        for (Class c : jbehaveTests) {
             p.println(c.getName() + ".class");
         }
-        for (Class c : TestEngine.allFunctionalTests()) {
+        for (Class c : functionalTests) {
             p.println(c.getName() + ".class");
         }
-        for (String c : TestEngine.allSeleniumTests()) {
+        for (String c : seleniumTests) {
             p.println(c);
         }
-
         renderText(list);
     }
 

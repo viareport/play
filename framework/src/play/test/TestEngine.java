@@ -10,6 +10,7 @@ import java.util.ListIterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
@@ -37,46 +38,27 @@ public class TestEngine {
     public static ExecutorService functionalTestsExecutor = Executors.newSingleThreadExecutor();
 
     public static List<Class> allUnitTests() {
-        List<Class> classes = Play.classloader.getAssignableClasses(Assert.class);
-        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
-            Class c = it.next();
-            if (Modifier.isAbstract(c.getModifiers())) {
-                it.remove();
-            } else {
-                if (FunctionalTest.class.isAssignableFrom(c)) {
-                    it.remove();
-                }
-            }
-        }
-        Collections.sort(classes, classNameComparator);
-        return classes;
+        return unitTests();
+    }
+
+    public static List<Class> allUnitTests(String testPackageName) {
+        return extractPackageClasses(testPackageName, unitTests());
     }
 
     public static List<Class> allJBehaveTests() {
-        List<Class> classes = Play.classloader.getAnnotatedClasses(BehaviourTest.class);
-        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
-            Class c = it.next();
-            if (Modifier.isAbstract(c.getModifiers())) {
-                it.remove();
-            } else {
-                if (FunctionalTest.class.isAssignableFrom(c)) {
-                    it.remove();
-                }
-            }
-        }
-        Collections.sort(classes, classNameComparator);
-        return classes;
+        return jbehaveTests();
+    }
+
+    public static List<Class> allJBehaveTests(String testPackageName) {
+        return extractPackageClasses(testPackageName, jbehaveTests());
     }
 
     public static List<Class> allFunctionalTests() {
-        List<Class> classes = Play.classloader.getAssignableClasses(FunctionalTest.class);
-        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
-            if (Modifier.isAbstract(it.next().getModifiers())) {
-                it.remove();
-            }
-        }
-        Collections.sort(classes, classNameComparator);
-        return classes;
+        return functionnalTests();
+    }
+
+    public static List<Class> allFunctionalTests(String testPackageName) {
+        return extractPackageClasses(testPackageName, functionnalTests());
     }
 
     public static List<String> seleniumTests(String testPath, List<String> results) {
@@ -95,6 +77,59 @@ public class TestEngine {
         }
         Collections.sort(results);
         return results;
+    }
+
+    private static List<Class> unitTests() {
+        List<Class> classes = Play.classloader.getAssignableClasses(Assert.class);
+        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
+            Class c = it.next();
+            if (Modifier.isAbstract(c.getModifiers())) {
+                it.remove();
+            } else {
+                if (FunctionalTest.class.isAssignableFrom(c)) {
+                    it.remove();
+                }
+            }
+        }
+        Collections.sort(classes, classNameComparator);
+        return classes;
+    }
+
+    private static List<Class> jbehaveTests() {
+        List<Class> classes = Play.classloader.getAnnotatedClasses(BehaviourTest.class);
+        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
+            Class c = it.next();
+            if (Modifier.isAbstract(c.getModifiers())) {
+                it.remove();
+            } else {
+                if (FunctionalTest.class.isAssignableFrom(c)) {
+                    it.remove();
+                }
+            }
+        }
+        Collections.sort(classes, classNameComparator);
+        return classes;
+    }
+
+    private static List<Class> functionnalTests() {
+        List<Class> classes = Play.classloader.getAssignableClasses(FunctionalTest.class);
+        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
+            if (Modifier.isAbstract(it.next().getModifiers())) {
+                it.remove();
+            }
+        }
+        Collections.sort(classes, classNameComparator);
+        return classes;
+    }
+
+    private static List<Class> extractPackageClasses(String testPackageName, List<Class> classes) {
+        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
+            Class c = it.next();
+            if (!StringUtils.contains(c.getName(), testPackageName)) {
+                it.remove();
+            }
+        }
+        return classes;
     }
 
     private static void scanForSeleniumTests(File dir, List<String> tests) {

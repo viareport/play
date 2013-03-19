@@ -20,10 +20,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringUtils;
+
 public class FirePhoque {
 
     public static void main(String[] args) throws Exception {
-
         Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 
         String app = System.getProperty("application.url", "http://localhost:9000");
@@ -33,7 +34,14 @@ public class FirePhoque {
         String selenium = null;
         List<String> tests = null;
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(new URL(app + "/@tests.list").openStream(), "utf-8"));
+            BufferedReader in ;
+            if(!StringUtils.isEmpty(args[0])){
+                //args0 contient le nom du package de test que l'on souhaite utiliser. Ca evite de runner tous les tests de tous les sous modules
+                in = new BufferedReader(new InputStreamReader(new URL(app + "/@tests.list/package/"+args[0]).openStream(), "utf-8"));
+            }else{
+                in = new BufferedReader(new InputStreamReader(new URL(app + "/@tests.list").openStream(), "utf-8"));
+
+            }
             String marker = in.readLine();
             if (!marker.equals("---")) {
                 throw new RuntimeException("Oops");
