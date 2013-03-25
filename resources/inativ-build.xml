@@ -92,6 +92,7 @@
         <property name="sonar.cobertura.reportPath" value="test-result/code-coverage/coverage.xml" />
         <property name="sonar.projectName" value="${ant.project.name}" />
         <property name="sonar.branch" value="Java" />
+        <property name="sonar.forceAnalysis" value="true" />
         <sonar:sonar key="inativ:${ant.project.name}" version="${project.version}" xmlns:sonar="antlib:org.sonar.ant" />
     </target>
 
@@ -105,7 +106,7 @@
         <sonar:sonar key="inativ:${ant.project.name}" version="${project.version}" xmlns:sonar="antlib:org.sonar.ant" />
     </target>
 
-    <target name="run-sonar-java" depends="check-project-version, rc, build-module, sonar-java" />
+    <target name="run-sonar-java" depends="check-project-version, clean, build-module, test, sonar-java" />
     <target name="run-sonar-js" depends="check-project-version, sonar-js" />
 
 
