@@ -10,6 +10,9 @@
     <property name="build.dir" value="${basedir}/build" />
     <property name="wait-test-js" value="2000" />
     <property name="sonar.host.url" value="http://192.168.1.107:9000" />
+    <property name="sonar.jdbc.url" value="jdbc:postgresql://localhost/sonar" />
+    <property name="sonar.jdbc.driverClassName" value="org.postgresql.Driver" />
+
 
     <condition property="suffix_arg" value="">
        <not>  
@@ -85,6 +88,8 @@
         <property name="sonar.sources" value="${sonar.java.sources}" />
         <property name="sonar.binaries" value="${sonar.java.binaries}"/>
         <property name="sonar.host.url" value="${sonar.host.url}" />
+        <property name="sonar.jdbc.url" value="${sonar.jdbc.url}" />
+        <property name="sonar.jdbc.driverClassName" value="${sonar.jdbc.driverClassName}" />
         <property name="sonar.dynamicAnalysis" value="reuseReports" />
         <property name="sonar.surefire.reportsPath" value="test-result" />
         <property name="sonar.language" value="java" />
@@ -100,6 +105,8 @@
         <property name="sonar.sources" value="${sonar.js.sources}" />
         <property name="sonar.exclusions" value="${sonar.js.exclusions}" />
         <property name="sonar.host.url" value="${sonar.host.url}" />
+        <property name="sonar.jdbc.url" value="${sonar.jdbc.url}" />
+        <property name="sonar.jdbc.driverClassName" value="${sonar.jdbc.driverClassName}" />
         <property name="sonar.language" value="js" />
         <property name="sonar.projectName" value="${ant.project.name}" />
         <property name="sonar.branch" value="JS" />
