@@ -57,6 +57,9 @@ public class F {
                 // The result of the promise is an exception - throw it
                 throw new ExecutionException(exception);
             }
+            if (! isDone()) {
+                throw new TimeoutException();
+            }
             return result;
         }
         List<F.Action<Promise<V>>> callbacks = new ArrayList<F.Action<Promise<V>>>();
