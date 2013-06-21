@@ -1,0 +1,12 @@
+Source: @@MYAPP_APP@@
+Section: devel
+Priority: optional
+Maintainer: Gildas Cuisinier
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+Version: 1.0.1
+
+Package: @@MYAPP_APP@@
+Architecture: all
+Depends: 
+Description: @@MYAPP_APP@@ @@MYAPP_APPVERSION@@
