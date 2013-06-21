@@ -73,7 +73,7 @@ cp $BUILD_DIR/../$APP_NAME*.deb .
 repo=/var/www/repository/play
 
 if [ -d $repo ]; then
-    cp *.deb $repository
+    cp *.deb $repo
     rm *.deb
 fi
 
