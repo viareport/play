@@ -75,10 +75,10 @@ And then run play just by:
     <macrodef name="play-python">
         <attribute name="command"/>
         <sequential>
-            <exec executable="cmd.exe" osfamily="winnt">
+            <exec executable="cmd.exe" osfamily="winnt" failonerror="true">
                 <arg line="/c ${play.path}/play.bat @{command}"/>
             </exec>
-            <exec executable="python" osfamily="unix">
+            <exec executable="python" osfamily="unix" failonerror="true">
                 <arg line="${play.path}/play @{command}"/>
             </exec>
         </sequential>
