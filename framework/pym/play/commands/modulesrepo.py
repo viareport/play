@@ -333,7 +333,6 @@ def build(app, args, env):
             continue
 
         if dirpath.startswith(os.path.join(app.path, 'data')):
-            print "Skip dir : " + dirpath
             continue
 
         for file in filenames:
