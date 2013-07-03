@@ -43,6 +43,21 @@
         <play-python command="build-module ${suffix_arg}" />
     </target>
 
+    <target name="module-version">
+        <exec executable="python" osfamily="unix" failonerror="true">
+            <arg line="${play.path}/play module-version"/>
+
+            <redirector output="version.txt" error="version.error.log">
+                <outputfilterchain>
+                    <striplinecomments>
+                        <comment value="~"/>
+                    </striplinecomments>
+                </outputfilterchain>
+            </redirector>
+
+        </exec>
+    </target>
+
     <target name="deps">
         <play-python command="deps --sync"/>
     </target>
