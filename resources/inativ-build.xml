@@ -35,7 +35,7 @@
         <antcall target="js-test"/>
     </target>
 
-    <target name="rc" depends="clean, build-module, check-repository, test">
+    <target name="rc" depends="clean, check-repository, test, build-module">
         <play-python command="repository-commit -a -r ${inativ.repository} ${suffix_arg}"/>
     </target>
 
