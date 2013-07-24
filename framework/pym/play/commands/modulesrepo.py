@@ -341,6 +341,7 @@ def build(app, args, env):
         for file in filenames:
             if file.find('~') > -1 or file.endswith('.iml') or file.startswith('.'):
                 continue
+            #Use generated dist/conf/dependencies.yml to handle dynamic revision number. 
             if (dirpath == os.path.join(app.path, 'dist')):
                 if file.endswith("dependencies.yml"):   
                     print "dist dependencies.yml"
@@ -349,6 +350,11 @@ def build(app, args, env):
                     continue
                 else:
                     continue
+            #Use dist/lib jar file. PATCH: Use different module jar files for compilation and deployment
+            #Circular dependency app/ src/, compilation jar is used for autotest
+            if (dirpath == os.path.join(app.path, 'dist', 'lib')):
+                zip.write(os.path.join(dirpath, file), os.path.join('lib', file))
+                continue
             if (dirpath ==  os.path.join(app.path, 'conf') and file.endswith('dependencies.yml')):
                 continue
             if dirpath == os.path.join(app.path, 'lib') and file != 'play-' + name + '.jar':
