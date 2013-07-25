@@ -47,9 +47,9 @@ def execute(**kargs):
     from_dir_dist = os.path.join(app.path, 'dist')
 
     #Only interested on .zip files
-    zip_files = ()
+    zip_files = []
     for root, dirs, files in os.walk(from_dir_dist):
-        zip_files = [ fi for fi in files if fi.endswith(".zip") ]
+        zip_files += [ fi for fi in files if fi.endswith(".zip") ]
 
     #Loop over all found files
     if len(zip_files) >0:
