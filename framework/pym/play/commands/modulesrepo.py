@@ -73,7 +73,6 @@ def get_repositories(play_base):
             return repos
     return [DEFAULT_REPO]
 
-
 class Downloader(object):
     before = .0
     history = []
@@ -255,6 +254,7 @@ def build(app, args, env):
     version = None
     name = None
     fwkMatch = None
+    origModuleDefinition = None
     suffix = None
 
     try:
@@ -284,12 +284,13 @@ def build(app, args, env):
         f = open(deps_file)
         file_content = f.read();
         deps = yaml.load(file_content)
-        self = deps["self"].split(" ")
-        versionCandidate = self.pop()
-        name = self.pop()
-        version = versionCandidate
-        if suffix:
-	       version = "%s-%s" % (version, suffix)
+	if 'self' in deps:
+           splitted = deps["self"].split(" -> ")
+           if len(splitted) == 2:
+            	nameAndVersion = splitted.pop().strip()
+                splitted = nameAndVersion.split(" ")
+                if len(splitted) == 2:
+                   version = splitted.pop()
         for dep in deps["require"]:
             if isinstance(dep, basestring):
                 splitted = dep.split(" ")
@@ -312,6 +313,25 @@ def build(app, args, env):
     if fwkMatch is None:
         fwkMatch = raw_input("~ What are the playframework versions required? ")
 
+    if os.path.exists(deps_file):
+        f = open(deps_file)
+        deps = yaml.load(f.read())
+	if 'self' in deps:
+           splitted = deps["self"].split(" -> ")
+           f.close()
+           if len(splitted) == 2:
+               nameAndVersion = splitted.pop().strip()
+               splitted = nameAndVersion.split(" ")
+               if len(splitted) == 1:
+                  try:
+                    deps = open(deps_file).read()
+                    origModuleDefinition = re.search(r'self:\s*(.*)\s*', deps).group(1)
+                    modifiedModuleDefinition = '%s %s' % (origModuleDefinition, version)
+                    replaceAll(deps_file, origModuleDefinition, modifiedModuleDefinition)
+                  except:
+                    pass
+        
+
     build_file = os.path.join(app.path, 'build.xml')
     if os.path.exists(build_file):
         print "~"
@@ -323,15 +343,24 @@ def build(app, args, env):
     mv = '%s-%s' % (name, version)
     print("~ Packaging %s ... " % mv)
 
+    dist_dir = os.path.join(app.path, 'dist')
+    if os.path.exists(dist_dir):
+        shutil.rmtree(dist_dir)
+    os.mkdir(dist_dir)
+
     manifest = os.path.join(app.path, 'manifest')
     manifestF = open(manifest, 'w')
     manifestF.write('version=%s\nframeworkVersions=%s\n' % (version, fwkMatch))
     manifestF.close()
 
     zip = zipfile.ZipFile(os.path.join(dist_dir, '%s.zip' % mv), 'w', zipfile.ZIP_STORED)
-    for (dirpath, dirnames, filenames) in os.walk(app.path):        
-        if dirpath.find(os.sep + '.') > -1 or dirpath.find('/tmp/') > -1 or dirpath.find('/test-result/') > -1 or dirpath.find('/logs/') > -1 or dirpath.find('/eclipse/') > -1 or dirpath.endswith('/test-result') or dirpath.endswith('/logs') or dirpath.endswith('/eclipse') or dirpath.endswith('/nbproject') or dirpath.find('node_modules') > -1 :
+    for (dirpath, dirnames, filenames) in os.walk(app.path):
+        if dirpath == dist_dir:
             continue
+               
+		if dirpath.find(os.sep + '.') > -1 or dirpath.find('/tmp/') > -1 or dirpath.find('/test-result/') > -1 or dirpath.find('/logs/') > -1 or dirpath.find('/eclipse/') > -1 or dirpath.endswith('/test-result') or dirpath.endswith('/logs') or dirpath.endswith('/eclipse') or dirpath.endswith('/nbproject') or dirpath.find('node_modules') > -1 :
+            continue
+
         if dirpath.startswith(os.path.join(app.path, 'modules')):
             continue
 
@@ -365,6 +394,13 @@ def build(app, args, env):
     zip.close()
 
     os.remove(manifest)
+    
+    # Reset the module definition
+    if origModuleDefinition:
+        try:
+            replaceAll(deps_file, '%s %s' % (origModuleDefinition, version), origModuleDefinition)
+        except:
+            pass
 
     print "~"
     print "~ Done!"
