@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.SessionImplementor;
 import org.hibernate.type.StringType;
 import org.hibernate.usertype.UserType;
 
@@ -95,6 +96,10 @@ public class Blob implements BinaryField, UserType {
 
     public Class returnedClass() {
         return this.getClass();
+    }
+
+    private static boolean equal(Object a, Object b) {
+      return a == b || (a != null && a.equals(b));
     }
 
     private static boolean equal(Object a, Object b) {

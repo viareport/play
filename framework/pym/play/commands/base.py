@@ -245,7 +245,7 @@ def autotest(app, args, package):
         line = soutint.readline().strip()
         if line:
             print line
-            if line.find('Listening for HTTP') > -1: # This line is written out by the test runner to system.out and is not log file dependent
+            if line.find('Listening for HTTP') > -1:
                 soutint.close()
                 break
 
