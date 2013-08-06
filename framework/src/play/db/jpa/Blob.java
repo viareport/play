@@ -102,10 +102,6 @@ public class Blob implements BinaryField, UserType {
       return a == b || (a != null && a.equals(b));
     }
 
-    private static boolean equal(Object a, Object b) {
-      return a == b || (a != null && a.equals(b));
-    }
-
     public boolean equals(Object o, Object o1) throws HibernateException {
         if(o instanceof Blob && o1 instanceof Blob) {
             return equal(((Blob)o).UUID, ((Blob)o1).UUID) &&

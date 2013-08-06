@@ -31,14 +31,17 @@ HELP = {
 
 DEFAULT_REPO = 'http://www.playframework.org'
 
+
 def load_module(name):
     base = os.path.normpath(os.path.dirname(os.path.realpath(sys.argv[0])))
     mod_desc = imp.find_module(name, [os.path.join(base, 'framework/pym')])
     return imp.load_module(name, mod_desc[0], mod_desc[1], mod_desc[2])
 
+
 json = load_module('simplejson')
 
 repositories = []
+
 
 def execute(**kargs):
     global repositories
@@ -61,6 +64,7 @@ def execute(**kargs):
     elif command in AM:
         add(app, args, env)
 
+
 def get_repositories(play_base):
     repopath = os.path.join(play_base, 'repositories')
     if os.path.exists(repopath):
@@ -72,6 +76,7 @@ def get_repositories(play_base):
         if len(repos) > 0:
             return repos
     return [DEFAULT_REPO]
+
 
 class Downloader(object):
     before = .0
@@ -87,7 +92,8 @@ class Downloader(object):
     def retrieve(self, url, destination, callback=None):
         self.size = 0
         time.clock()
-        try: urllib.urlretrieve(url, destination, self.progress)
+        try:
+            urllib.urlretrieve(url, destination, self.progress)
         except KeyboardInterrupt:
             print '\n~ Download cancelled'
             print '~'
@@ -97,7 +103,8 @@ class Downloader(object):
                     break
                 except:
                     time.sleep(.1)
-            else: raise
+            else:
+                raise
             if callback: callback()
             sys.exit()
         print ''
@@ -105,7 +112,7 @@ class Downloader(object):
 
     def progress(self, blocks, blocksize, filesize):
         self.cycles += 1
-        bits = min(blocks*blocksize, filesize)
+        bits = min(blocks * blocksize, filesize)
         if bits != filesize:
             done = self.proc(bits, filesize)
         else:
@@ -113,7 +120,7 @@ class Downloader(object):
         bar = self.bar(done)
         if not self.cycles % 3 and bits != filesize:
             now = time.clock()
-            elapsed = now-self.before
+            elapsed = now - self.before
             if elapsed:
                 speed = self.kibi(blocksize * 3 / elapsed)
                 self.history.append(speed)
@@ -121,7 +128,7 @@ class Downloader(object):
             self.before = now
         average = round(sum(self.history[-4:]) / 4, 1)
         self.size = self.kibi(bits)
-        print '\r~ [%s] %s KiB/s  ' % (bar, str(average)),
+        print '\r~ [%s] %s KiB/s ' % (bar, str(average)),
 
     def bar(self, done):
         span = self.width * done * 0.01
@@ -129,8 +136,9 @@ class Downloader(object):
         result = ('%d%%' % (done,)).center(self.width)
         return result.replace(' ', '-', int(span - offset))
 
+
 class Unzip:
-    def __init__(self, verbose = False, percent = 10):
+    def __init__(self, verbose=False, percent=10):
         self.verbose = verbose
         self.percent = percent
 
@@ -149,7 +157,7 @@ class Unzip:
             if self.verbose == True:
                 print "Extracting %s" % name
             elif perc > 0 and (i % perc) == 0 and i > 0:
-                complete = int (i / perc) * percent
+                complete = int(i / perc) * percent
             if not name.endswith('/'):
                 outfile = open(os.path.join(dir, name), 'wb')
                 outfile.write(zf.read(name))
@@ -167,16 +175,17 @@ class Unzip:
                 os.makedirs(curdir)
 
     def _listdirs(self, file):
-            """ Grabs all the directories in the zip structure
-            This is necessary to create the structure before trying
-            to extract the file to it. """
-            zf = zipfile.ZipFile(file)
-            dirs = []
-            for name in zf.namelist():
-                    dn = os.path.dirname(name)
-                    dirs.append(dn)
-            dirs.sort()
-            return dirs
+        """ Grabs all the directories in the zip structure
+This is necessary to create the structure before trying
+to extract the file to it. """
+        zf = zipfile.ZipFile(file)
+        dirs = []
+        for name in zf.namelist():
+            dn = os.path.dirname(name)
+            dirs.append(dn)
+        dirs.sort()
+        return dirs
+
 
 def new(app, args, play_env):
     if os.path.exists(app.path):
@@ -215,31 +224,32 @@ def new(app, args, play_env):
     print "~ Have fun!"
     print "~"
 
+
 def list(app, args):
     print "~ You can also browse this list online at:"
     for repo in repositories:
-        print "~    %s/modules" % repo
+        print "~ %s/modules" % repo
     print "~"
 
     modules_list = load_module_list()
 
     for mod in modules_list:
         print "~ [%s]" % mod['name']
-        print "~   %s" % mod['fullname']
-        print "~   %s/modules/%s" % (mod['server'], mod['name'])
+        print "~ %s" % mod['fullname']
+        print "~ %s/modules/%s" % (mod['server'], mod['name'])
 
         vl = ''
         i = 0
         for v in mod['versions']:
             vl += v["version"]
-            i = i+1
+            i = i + 1
             if i < len(mod['versions']):
                 vl += ', '
 
         if vl:
-            print "~   Versions: %s" % vl
+            print "~ Versions: %s" % vl
         else:
-            print "~   (No versions released yet)"
+            print "~ (No versions released yet)"
         print "~"
 
     print "~ To install one of these modules use:"
@@ -248,6 +258,7 @@ def list(app, args):
     print "~ Or you can just install the default release of a module using:"
     print "~ play install module (eg: play install scala)"
     print "~"
+
 
 def build(app, args, env):
     ftb = env["basedir"]
@@ -258,7 +269,7 @@ def build(app, args, env):
     suffix = None
 
     try:
-        optlist, args = getopt.getopt(args, '', ['framework=', 'version=', 'suffix=', 'require='])
+        optlist, args = getopt.getopt(args, '', ['framework=', 'version=', 'require='])
         for o, a in optlist:
             if o in ('--framework'):
                 ftb = a
@@ -268,11 +279,11 @@ def build(app, args, env):
                 suffix = a
             if o in ('--require'):
                 fwkMatch = a
+
     except getopt.GetoptError, err:
         print "~ %s" % str(err)
         print "~ "
         sys.exit(-1)
-
 
     dist_dir = os.path.join(app.path, 'dist')
     if os.path.exists(dist_dir):
@@ -284,26 +295,29 @@ def build(app, args, env):
         f = open(deps_file)
         file_content = f.read();
         deps = yaml.load(file_content)
-	if 'self' in deps:
-           splitted = deps["self"].split(" -> ")
-           if len(splitted) == 2:
-            	nameAndVersion = splitted.pop().strip()
+
+        if 'self' in deps:
+            splitted = deps["self"].split(" -> ")
+            if len(splitted) == 2:
+                nameAndVersion = splitted.pop().strip()
                 splitted = nameAndVersion.split(" ")
                 if len(splitted) == 2:
-                   version = splitted.pop()
+                    version = splitted.pop()
+                    name = splitted.pop()
+                    if suffix:
+                        version = "%s-%s" % (version, suffix)
+
         for dep in deps["require"]:
             if isinstance(dep, basestring):
                 splitted = dep.split(" ")
                 if len(splitted) == 2 and splitted[0] == "play":
                     fwkMatch = splitted[1]
-        
 
         new_deps_file = os.path.join(app.path, 'dist', 'dependencies.yml')
-
         with open(new_deps_file, 'w') as new_deps:
             deps["self"] = ' '.join([name, version])
             modified_dependency_content = re.sub(r'(self[ ]*: \w+ -> [-_a-zA-Z]+) [-.a-zA-Z0-9]+', r'\1 %s' % version, file_content)
-            new_deps.write(modified_dependency_content) 
+            new_deps.write(modified_dependency_content)
         f.close
 
     if name is None:
@@ -316,28 +330,27 @@ def build(app, args, env):
     if os.path.exists(deps_file):
         f = open(deps_file)
         deps = yaml.load(f.read())
-	if 'self' in deps:
-           splitted = deps["self"].split(" -> ")
-           f.close()
-           if len(splitted) == 2:
-               nameAndVersion = splitted.pop().strip()
-               splitted = nameAndVersion.split(" ")
-               if len(splitted) == 1:
-                  try:
-                    deps = open(deps_file).read()
-                    origModuleDefinition = re.search(r'self:\s*(.*)\s*', deps).group(1)
-                    modifiedModuleDefinition = '%s %s' % (origModuleDefinition, version)
-                    replaceAll(deps_file, origModuleDefinition, modifiedModuleDefinition)
-                  except:
-                    pass
-        
+        if 'self' in deps:
+            splitted = deps["self"].split(" -> ")
+            f.close()
+            if len(splitted) == 2:
+                nameAndVersion = splitted.pop().strip()
+                splitted = nameAndVersion.split(" ")
+                if len(splitted) == 1:
+                    try:
+                        deps = open(deps_file).read()
+                        origModuleDefinition = re.search(r'self:\s*(.*)\s*', deps).group(1)
+                        modifiedModuleDefinition = '%s %s' % (origModuleDefinition, version)
+                        replaceAll(deps_file, origModuleDefinition, modifiedModuleDefinition)
+                    except:
+                        pass
 
     build_file = os.path.join(app.path, 'build.xml')
     if os.path.exists(build_file):
         print "~"
         print "~ Building..."
         print "~"
-        os.system('ant -f %s -Dplay.path=%s' % (build_file, ftb) )
+        os.system('ant -f %s -Dplay.path=%s' % (build_file, ftb))
         print "~"
 
     mv = '%s-%s' % (name, version)
@@ -357,22 +370,20 @@ def build(app, args, env):
     for (dirpath, dirnames, filenames) in os.walk(app.path):
         if dirpath == dist_dir:
             continue
-               
-		if dirpath.find(os.sep + '.') > -1 or dirpath.find('/tmp/') > -1 or dirpath.find('/test-result/') > -1 or dirpath.find('/logs/') > -1 or dirpath.find('/eclipse/') > -1 or dirpath.endswith('/test-result') or dirpath.endswith('/logs') or dirpath.endswith('/eclipse') or dirpath.endswith('/nbproject') or dirpath.find('node_modules') > -1 :
+        if dirpath.find(os.sep + '.') > -1 or dirpath.find('/tmp/') > -1 or dirpath.find('/test-result/') > -1 or dirpath.find('/logs/') > -1 or dirpath.find('/eclipse/') > -1 or dirpath.endswith('/test-result') or dirpath.endswith('/logs') or dirpath.endswith('/eclipse') or dirpath.endswith('/nbproject') or dirpath.find('node_modules') > -1:
             continue
-
         if dirpath.startswith(os.path.join(app.path, 'modules')):
             continue
-
         if dirpath.startswith(os.path.join(app.path, 'data')):
             continue
-
         for file in filenames:
             if file.find('~') > -1 or file.endswith('.iml') or file.startswith('.'):
                 continue
-            #Use generated dist/conf/dependencies.yml to handle dynamic revision number. 
+
+            #Use generated dist/conf/dependencies.yml to handle dynamic revision number.
+
             if (dirpath == os.path.join(app.path, 'dist')):
-                if file.endswith("dependencies.yml"):   
+                if file.endswith("dependencies.yml"):
                     print "dist dependencies.yml"
                     conf_path = os.path.join(app.path, 'conf')
                     zip.write(os.path.join(dirpath, file), os.path.join(conf_path[len(app.path):], file))
@@ -384,17 +395,17 @@ def build(app, args, env):
             if (dirpath == os.path.join(app.path, 'dist', 'lib')):
                 zip.write(os.path.join(dirpath, file), os.path.join('lib', file))
                 continue
-            if (dirpath ==  os.path.join(app.path, 'conf') and file.endswith('dependencies.yml')):
+            if (dirpath == os.path.join(app.path, 'conf') and file.endswith('dependencies.yml')):
                 continue
             if dirpath == os.path.join(app.path, 'lib') and file != 'play-' + name + '.jar':
                 print "ignored lib: " + file
                 continue
-
             zip.write(os.path.join(dirpath, file), os.path.join(dirpath[len(app.path):], file))
+
     zip.close()
 
     os.remove(manifest)
-    
+
     # Reset the module definition
     if origModuleDefinition:
         try:
@@ -406,6 +417,7 @@ def build(app, args, env):
     print "~ Done!"
     print "~ Package is available at %s" % os.path.join(dist_dir, '%s.zip' % mv)
     print "~"
+
 
 def install(app, args, env):
     if len(sys.argv) < 3:
@@ -434,7 +446,7 @@ def install(app, args, env):
                     print '~ Installing module %s-%s...' % (module, v['version'])
                     fetch = '%s/modules/%s-%s.zip' % (mod['server'], module, v['version'])
                     break
-                if version  == v['version']:
+                if version == v['version']:
                     print '~ Will install %s-%s' % (module, v['version'])
                     print '~ This module is compatible with: %s' % v['matches']
                     ok = raw_input('~ Do you want to install this version (y/n)? ')
@@ -478,9 +490,10 @@ def install(app, args, env):
     print '~ You can now use it by adding it to the dependencies.yml file:'
     print '~'
     print '~ require:'
-    print '~     play -> %s %s' % (module, v['version'])
+    print '~ play -> %s %s' % (module, v['version'])
     print '~'
     sys.exit(0)
+
 
 def add(app, args, env):
     app.check()
@@ -516,12 +529,12 @@ def add(app, args, env):
         print "~ "
         sys.exit(-1)
 
-    replaceAll(appConf, r'# ---- MODULES ----', '# ---- MODULES ----\nmodule.%s=${play.path}/modules/%s' % (mn, m) )
+    replaceAll(appConf, r'# ---- MODULES ----', '# ---- MODULES ----\nmodule.%s=${play.path}/modules/%s' % (mn, m))
     print "~ Module %s add to application %s." % (mn, app.name())
     print "~ "
 
-def load_module_list():
 
+def load_module_list():
     def addServer(module, server):
         module['server'] = server
         return module
@@ -543,6 +556,7 @@ def load_module_list():
                 if not any(modules, lambda m: m['name'] == module['name']):
                     modules.append(addServer(module, repo))
     return modules
+
 
 def load_modules_from(modules_server):
     try:
