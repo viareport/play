@@ -1,16 +1,15 @@
 package play.mvc;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static play.mvc.CookieDataCodec.decode;
-import static play.mvc.CookieDataCodec.encode;
+import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
+import static play.mvc.CookieDataCodec.decode;
+import static play.mvc.CookieDataCodec.encode;
 
 public class CookieDataCodecTest {
 
@@ -114,8 +113,7 @@ public class CookieDataCodecTest {
     private String oldEncoder(final Map<String, String> out) throws UnsupportedEncodingException {
         StringBuilder flash = new StringBuilder();
         for (String key : out.keySet()) {
-            if (out.get(key) == null)
-                continue;
+            if (out.get(key) == null) continue;
             flash.append("\u0000");
             flash.append(key);
             flash.append(":");
@@ -154,13 +152,4 @@ public class CookieDataCodecTest {
         decode(outMap, data);
         assertThat(outMap.isEmpty());
     }
-
-    @Test
-    public void decode_values_with_dollar_in_them() throws UnsupportedEncodingException {
-        final String data = "%00$Name= %3Avalue%00";
-        final Map<String, String> outMap = new HashMap<String, String>(1);
-        decode(outMap, data);
-        assertThat(outMap.isEmpty());
-    }
-
 }
