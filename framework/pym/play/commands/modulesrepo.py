@@ -269,7 +269,7 @@ def build(app, args, env):
     suffix = None
 
     try:
-        optlist, args = getopt.getopt(args, '', ['framework=', 'version=', 'require='])
+        optlist, args = getopt.getopt(args, '', ['framework=', 'version=', 'suffix=', 'require='])
         for o, a in optlist:
             if o in ('--framework'):
                 ftb = a
@@ -368,14 +368,14 @@ def build(app, args, env):
 
     zip = zipfile.ZipFile(os.path.join(dist_dir, '%s.zip' % mv), 'w', zipfile.ZIP_STORED)
     for (dirpath, dirnames, filenames) in os.walk(app.path):
-        if dirpath == dist_dir:
-            continue
         if dirpath.find(os.sep + '.') > -1 or dirpath.find('/tmp/') > -1 or dirpath.find('/test-result/') > -1 or dirpath.find('/logs/') > -1 or dirpath.find('/eclipse/') > -1 or dirpath.endswith('/test-result') or dirpath.endswith('/logs') or dirpath.endswith('/eclipse') or dirpath.endswith('/nbproject') or dirpath.find('node_modules') > -1:
             continue
         if dirpath.startswith(os.path.join(app.path, 'modules')):
             continue
+
         if dirpath.startswith(os.path.join(app.path, 'data')):
             continue
+
         for file in filenames:
             if file.find('~') > -1 or file.endswith('.iml') or file.startswith('.'):
                 continue

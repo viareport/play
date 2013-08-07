@@ -274,7 +274,7 @@ class PlayApplication(object):
     # ~~~~~~~~~~~~~~~~~~~~~~ MISC
 
     def toRelative(self, path):
-        return _absoluteToRelative(path, self.path).replace("//", "/")
+        return _absoluteToRelative(path, self.path, "").replace("//", "/")
 
 def _absoluteToRelative(path, start):
     """Return a relative version of a path"""

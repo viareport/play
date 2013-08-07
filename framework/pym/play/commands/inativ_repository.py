@@ -56,7 +56,7 @@ def execute(**kargs):
         for file in zip_files:
 
             expected_file = "%s-%s.zip" % (app_name, module_version)
-	    print "Expected %s found %s" % (expected_file, file)
+            print "Expected %s found %s" % (expected_file, file)
 
             if expected_file == file:
                 if options.all:
@@ -84,7 +84,9 @@ def execute(**kargs):
 
 def extract_name_version(app, deps_file):
     #Getting module version from dependencies file
+    print '~ Deps file : %s' % deps_file
     if os.path.exists(deps_file):
+        print "deps"
         f = open(deps_file)
         deps = yaml.load(f.read())
         #Is this a Play~ module?
@@ -102,7 +104,6 @@ def extract_name_version(app, deps_file):
                 print '~ '
                 module_version = raw_input('~ Provide version number to be pushed to Repository:')
         f.close
-
     if module_version:
         print '~ Module version : %s' % module_version
         print '~ '

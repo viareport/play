@@ -139,6 +139,21 @@ def handle_sigterm(signum, frame):
         process.terminate()
         sys.exit(0)
 
+first_sigint = True
+
+def handle_sigint(signum, frame):
+    global process
+    global first_sigint
+    if 'process' in globals():
+        if first_sigint:
+            # Prefix with new line because ^C usually appears on the terminal
+            print "\nTerminating Java process"
+            process.terminate()
+            first_sigint = False
+        else:
+            print "\nKilling Java process"
+            process.kill()
+        
 def run(app, args):
     global process
     app.check()
@@ -150,6 +165,7 @@ def run(app, args):
         process = subprocess.Popen (java_cmd, env=os.environ)
         signal.signal(signal.SIGTERM, handle_sigterm)
         return_code = process.wait()
+        signal.signal(signal.SIGINT, handle_sigint)
         if 0 != return_code:
             sys.exit(return_code)
     except OSError:
@@ -245,7 +261,7 @@ def autotest(app, args, package):
         line = soutint.readline().strip()
         if line:
             print line
-            if line.find('Listening for HTTP') > -1:
+            if line.find('Server is up and running') > -1: # This line is written out by Server.java to system.out and is not log file dependent
                 soutint.close()
                 break
 
@@ -277,6 +293,7 @@ def autotest(app, args, package):
     time.sleep(1)
     
     # Kill if exists
+    http_port = app.readConf('http.port')
     try:
         proxy_handler = urllib2.ProxyHandler({})
         opener = urllib2.build_opener(proxy_handler)

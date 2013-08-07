@@ -172,9 +172,12 @@ public class BinaryTest extends FunctionalTest {
 
     @Test
     public void testGetErrorBinary() {
-        Response response = GET("/binary/getErrorBinary");
-        // This does not work. See Lighthouse ticket #1637.
-        // assertStatus(500, response);
+        try {
+            GET("/binary/getErrorBinary");
+            fail();
+        }
+        catch (Exception e) {
+        }
         assertTrue(Binary.errorInputStreamClosed);
     }
 }
