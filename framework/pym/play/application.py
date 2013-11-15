@@ -243,8 +243,8 @@ class PlayApplication(object):
 
         if application_mode == 'prod':
             java_args.append('-server')
-	# JDK 7 compat
-	java_args.append('-XX:-UseSplitVerifier')
+	    # JDK 7 compat
+	    java_args.append('-XX:-UseSplitVerifier')
         java_policy = self.readConf('java.policy')
         if java_policy != '':
             policyFile = os.path.join(self.path, 'conf', java_policy)
@@ -274,12 +274,15 @@ class PlayApplication(object):
         
         java_agents = ['-javaagent:%s' % self.agent_path()] + custom_java_agents
         
-        java_args_config = self.readConf('java.args').split(' ')
-        if java_args_config:
-            print "Java args from config %s" % java_args_config
+        java_args_config = []
+        if self.readConf('java.args'):
+            args_from_conf = self.readConf('java.args')
+            if args_from_conf:
+                java_args_config = java_args_config.split(' ')
+                print "Java args from config %s" % java_args_config
 
         java_cmd = [self.java_path()] + java_args_config + java_agents + java_args + ['-classpath', cp_args, '-Dapplication.path=%s' % self.path, '-Dplay.id=%s' % self.play_env["id"], className] + args
-        
+
         return java_cmd
 
     # ~~~~~~~~~~~~~~~~~~~~~~ MISC
