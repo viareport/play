@@ -170,6 +170,9 @@ class PlayApplication(object):
     def agent_path(self):
         return os.path.join(self.play_env["basedir"], 'framework/play-%s.jar' % self.play_env['version'])
 
+    def new_relic_agent_path(self):
+        return os.path.join(self.play_env["basedir"], 'newrelic/newrelic.jar')
+
     def cp_args(self):
         classpath = self.getClasspath()
         cp_args = ':'.join(classpath)
@@ -240,8 +243,8 @@ class PlayApplication(object):
 
         if application_mode == 'prod':
             java_args.append('-server')
-	# JDK 7 compat
-	java_args.append('-XX:-UseSplitVerifier')
+	    # JDK 7 compat
+	    java_args.append('-XX:-UseSplitVerifier')
         java_policy = self.readConf('java.policy')
         if java_policy != '':
             policyFile = os.path.join(self.path, 'conf', java_policy)
@@ -264,7 +267,22 @@ class PlayApplication(object):
             java_args.append('-Xrunjdwp:transport=dt_socket,address=%s,server=y,suspend=n' % self.jpda_port)
             java_args.append('-Dplay.debug=yes')
         
-        java_cmd = [self.java_path(), '-javaagent:%s' % self.agent_path()] + java_args + ['-classpath', cp_args, '-Dapplication.path=%s' % self.path, '-Dplay.id=%s' % self.play_env["id"], className] + args
+        java_agents_conf = self.readConf('java.agents')
+
+
+        custom_java_agents = ['-javaagent:%s' % os.path.join(self.play_env["basedir"], java_agent) for java_agent in java_agents_conf.split(',') if java_agent]
+        
+        java_agents = ['-javaagent:%s' % self.agent_path()] + custom_java_agents
+        
+        java_args_config = []
+        if self.readConf('java.args'):
+            args_from_conf = self.readConf('java.args')
+            if args_from_conf:
+                java_args_config = java_args_config.split(' ')
+                print "Java args from config %s" % java_args_config
+
+        java_cmd = [self.java_path()] + java_args_config + java_agents + java_args + ['-classpath', cp_args, '-Dapplication.path=%s' % self.path, '-Dplay.id=%s' % self.play_env["id"], className] + args
+
         return java_cmd
 
     # ~~~~~~~~~~~~~~~~~~~~~~ MISC
