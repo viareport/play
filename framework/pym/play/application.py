@@ -278,7 +278,7 @@ class PlayApplication(object):
         if self.readConf('java.args'):
             args_from_conf = self.readConf('java.args')
             if args_from_conf:
-                java_args_config = java_args_config.split(' ')
+                java_args_config = args_from_conf.split(' ')
                 print "Java args from config %s" % java_args_config
 
         java_cmd = [self.java_path()] + java_args_config + java_agents + java_args + ['-classpath', cp_args, '-Dapplication.path=%s' % self.path, '-Dplay.id=%s' % self.play_env["id"], className] + args
