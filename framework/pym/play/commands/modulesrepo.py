@@ -335,6 +335,9 @@ def build(app, args, env):
         if dirpath.startswith(os.path.join(app.path, 'data')):
             continue
 
+        if os.path.islink(dirpath) and not dirpath.endswith('/public'):
+    	    continue
+
         for file in filenames:
             if file.find('~') > -1 or file.endswith('.iml') or file.startswith('.'):
                 continue
