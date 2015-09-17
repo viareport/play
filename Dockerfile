@@ -17,3 +17,9 @@ RUN apt-get install -y python ant
 ENV PATH /opt/play:$PATH
 
 ADD ./framework/dist/play /opt/play
+
+# Gestion locale pour FS
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
