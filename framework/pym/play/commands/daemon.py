@@ -3,10 +3,11 @@ import subprocess
 from play.utils import *
 import time
 
-COMMANDS = ['start', 'stop', 'restart', 'pid', 'out']
+COMMANDS = ['start', 'dockerstart', 'stop', 'restart', 'pid', 'out']
 
 HELP = {
     'start': 'Start the application in the background',
+    'dockerstart': 'Start the application for docker',
     'stop': 'Stop the running application',
     'restart': 'Restart the running application',
     'pid': 'Show the PID of the running application',
@@ -21,6 +22,8 @@ def execute(**kargs):
 
     if command == 'start':
         start(app, args)
+    if command == 'dockerstart':
+        dockerstart(app, args)
     if command == 'stop':
         stop(app)
     if command == 'restart':
@@ -55,6 +58,33 @@ def start(app, args):
     pid_file.write(str(pid))
     print "~ pid is %s" % pid
     print "~"
+
+def dockerstart(app, args):
+    app.check()
+
+    sysout = app.readConf('application.log.system.out')
+    sysout = sysout!='false' and sysout!='off'
+    if not sysout:
+        sout = None
+    else:
+        sout = open(os.path.join(app.log_path(), 'system.out'), 'w')
+
+    try:
+        process = subprocess.Popen(app.java_cmd(args), stdout=sout, env=os.environ)
+        pid = process.pid
+        signal.signal(signal.SIGTERM, handle_sigterm)
+        return_code = process.wait()
+        if 0 != return_code:
+            sys.exit(return_code)
+    except OSError:
+        print "Could not execute the java executable, please make sure the JAVA_HOME environment variable is set properly (the java executable should reside at JAVA_HOME/bin/java). "
+        sys.exit(-1)
+    print "~ OK, %s is started" % os.path.normpath(app.path)
+    if sysout:
+      print "~ output is redirected to %s" % os.path.normpath(os.path.join(app.log_path(), 'system.out'))
+    print "~ pid is %s" % pid
+    print "~"
+    print "~ Ctrl+C to stop"
 
 def stop(app):
     app.check()
