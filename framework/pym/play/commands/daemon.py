@@ -72,7 +72,6 @@ def dockerstart(app, args):
     try:
         process = subprocess.Popen(app.java_cmd(args), stdout=sout, env=os.environ)
         pid = process.pid
-        signal.signal(signal.SIGTERM, handle_sigterm)
         return_code = process.wait()
         if 0 != return_code:
             sys.exit(return_code)
