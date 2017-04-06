@@ -62,28 +62,13 @@ def start(app, args):
 def dockerstart(app, args):
     app.check()
 
-    sysout = app.readConf('application.log.system.out')
-    sysout = sysout!='false' and sysout!='off'
-    if not sysout:
-        sout = None
-    else:
-        sout = open(os.path.join(app.log_path(), 'system.out'), 'w')
-
     try:
-        process = subprocess.Popen(app.java_cmd(args), stdout=sout, env=os.environ)
-        pid = process.pid
-        return_code = process.wait()
-        if 0 != return_code:
-            sys.exit(return_code)
+        cmd, args = app.java_cmd(args).split(' ', 1)
+        args = args.split(' ')
+        os.execvp(cmd, args)
     except OSError:
         print "Could not execute the java executable, please make sure the JAVA_HOME environment variable is set properly (the java executable should reside at JAVA_HOME/bin/java). "
         sys.exit(-1)
-    print "~ OK, %s is started" % os.path.normpath(app.path)
-    if sysout:
-      print "~ output is redirected to %s" % os.path.normpath(os.path.join(app.log_path(), 'system.out'))
-    print "~ pid is %s" % pid
-    print "~"
-    print "~ Ctrl+C to stop"
 
 def stop(app):
     app.check()
