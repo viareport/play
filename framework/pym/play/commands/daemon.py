@@ -63,8 +63,8 @@ def dockerstart(app, args):
     app.check()
 
     try:
-        cmd, args = app.java_cmd(args).split(' ', 1)
-        args = args.split(' ')
+        cmd = app.java_cmd(args)[0]
+        args = app.java_cmd(args)[1:]
         os.execvp(cmd, args)
     except OSError:
         print "Could not execute the java executable, please make sure the JAVA_HOME environment variable is set properly (the java executable should reside at JAVA_HOME/bin/java). "
