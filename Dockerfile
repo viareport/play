@@ -15,3 +15,10 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
+
+# configure the "inativ_dev" user
+RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ_dev --shell /bin/bash inativ_dev
+USER inativ_dev
+
+# Set the timezone.
+RUN echo "Europe/Paris" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
