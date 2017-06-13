@@ -25,5 +25,3 @@ ADD ./framework/dist/play-${PLAY_VERSION}.tgz /opt/
 
 # configure the "inativ" user
 RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ --shell /bin/bash inativ
-
-USER inativ
