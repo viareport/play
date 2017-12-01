@@ -348,7 +348,7 @@
     </target>
 
     <target name="unittest" depends="compile-unittest">
-        <junit errorproperty="junit.failure" failureproperty="junit.failure">
+        <junit errorproperty="junit.failure" failureproperty="junit.failure" fork="true">
             <classpath refid="classpath.test" />
             <formatter type="brief" usefile="false" />
             <batchtest>
