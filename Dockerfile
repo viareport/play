@@ -22,7 +22,9 @@ RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ --shell /bin
 ARG PLAY_VERSION
 ENV PLAY_VERSION ${PLAY_VERSION}
 
-WORKDIR /opt/
+ADD . /opt/app
+
+WORKDIR /opt/app
 
 RUN ant -f framework/build.xml -Dversion=$PLAY_VERSION clean version compile modules
 # TODO : voir si y a pas du ménage à faire (javadoc, samples, etc.)
