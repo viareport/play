@@ -26,7 +26,7 @@ ADD . /opt/app
 
 WORKDIR /opt/app
 
-RUN ant -f framework/build.xml -Dversion=$PLAY_VERSION clean version compile modules
+RUN ant -f framework/build.xml package -Dversion=$PLAY_VERSION
 # TODO : voir si y a pas du ménage à faire (javadoc, samples, etc.)
 
 
