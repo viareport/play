@@ -32,7 +32,7 @@ FROM openjdk:7u151-jre-slim as play-extracted
 ARG PLAY_VERSION
 ENV PLAY_VERSION ${PLAY_VERSION}
 COPY --from=play-builder /opt/app/framework/dist/play-$PLAY_VERSION.zip /tmp
-RUN unzip /tmp/play-${PLAY_VERSION}.zip -d /tmp && mv /tmp/play-${PLAY_VERSION} /opt/play
+RUN unzip /tmp/play-${PLAY_VERSION}.zip -d /tmp && mv /tmp/play-${PLAY_VERSION} /opt/play && rm -rf /opt/play/samples-and-tests/ /opt/play/documentation
 
 # Second stage
 
@@ -54,4 +54,4 @@ RUN echo "Europe/Paris" > /etc/timezone && dpkg-reconfigure -f noninteractive tz
 
 # configure the "inativ" user
 RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ --shell /bin/bash inativ
-COPY --from=play-extracted /opt/play /opt
+COPY --from=play-extracted /opt/play /opt/play
