@@ -18,23 +18,17 @@ RUN echo "Europe/Paris" > /etc/timezone && dpkg-reconfigure -f noninteractive tz
 # configure the "inativ" user
 RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ --shell /bin/bash inativ
 
-ADD . /opt/app
+ADD . /usr/local/src/play
 
-WORKDIR /opt/app
+WORKDIR /usr/local/src/play
 
 ARG PLAY_VERSION
 ENV PLAY_VERSION ${PLAY_VERSION}
 
 RUN ant -f framework/build.xml package -Dversion=$PLAY_VERSION
-# TODO : voir si y a pas du ménage à faire (javadoc, samples, etc.)
+RUN unzip framework/dist/play-${PLAY_VERSION}.zip -d /tmp && mv /tmp/play-${PLAY_VERSION} /opt/play && rm -rf /opt/play/samples-and-tests/ /opt/play/documentation
 
-FROM openjdk:7u151-jre-slim as play-extracted
-ARG PLAY_VERSION
-ENV PLAY_VERSION ${PLAY_VERSION}
-COPY --from=play-builder /opt/app/framework/dist/play-$PLAY_VERSION.zip /tmp
-RUN unzip /tmp/play-${PLAY_VERSION}.zip -d /tmp && mv /tmp/play-${PLAY_VERSION} /opt/play && rm -rf /opt/play/samples-and-tests/ /opt/play/documentation
-
-# Second stage
+#### Second stage
 
 FROM openjdk:7u151-jre-slim
 MAINTAINER mOuLiNeX & eesprit
@@ -54,4 +48,8 @@ RUN echo "Europe/Paris" > /etc/timezone && dpkg-reconfigure -f noninteractive tz
 
 # configure the "inativ" user
 RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ --shell /bin/bash inativ
+
+ARG PLAY_VERSION
+ENV PLAY_VERSION ${PLAY_VERSION}
+
 COPY --from=play-extracted /opt/play /opt/play
