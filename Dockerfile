@@ -18,6 +18,8 @@ RUN echo "Europe/Paris" > /etc/timezone && dpkg-reconfigure -f noninteractive tz
 # configure the "inativ" user
 RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ --shell /bin/bash inativ
 
+ADD ivysettings.xml /root/.ivy2/ivysettings.xml
+
 ADD . /usr/local/src/play
 
 WORKDIR /usr/local/src/play

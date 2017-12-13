@@ -1,0 +1,40 @@
+<ivysettings>
+
+  <settings defaultResolver="mavenDual"/>
+  <resolvers>
+    <chain name="mavenChain" returnFirst="true">
+      <ibiblio name="inativMaven" m2compatible="true" root="http://192.168.1.107/mvn_repository/"/>
+      <ibiblio name="mavenCentral" m2compatible="true"/>
+    </chain>
+
+    <dual name="mavenDual">
+      <resolver ref="mavenChain"/>
+      <resolver ref="mavenChain"/>
+    </dual>
+    
+    <chain name="inativ" returnFirst="true">
+      <filesystem name="inativLocal" local="true">
+        <ivy pattern="${ivy.default.ivy.user.dir}/local_modules/[module]/conf/dependencies.yml"/>
+        <artifact pattern="${ivy.default.ivy.user.dir}/local_modules/[module]"/>        
+      </filesystem>
+
+      <url name="inativCentral">
+        <ivy pattern="http://192.168.1.107/repository/[module]/[revision]/dependencies.yml"/>
+        <artifact pattern="http://192.168.1.107/repository/[module]/[revision]/[module]-[revision].zip"/>
+      </url>
+
+
+      <filesystem name="inativLocal" local="true">
+        <ivy pattern="${application.path}/../[module]/conf/dependencies.yml"/>
+        <artifact pattern="${application.path}/../[module]"/>        
+      </filesystem>
+   </chain>
+  </resolvers>
+
+  <modules>
+    <module organisation="inativ" name="*" resolver="inativ"/>
+    <module organisation="greenscript" name="*" resolver="inativ"/>
+    <module organisation="cobertura" name="*" resolver="inativ"/>
+  </modules>
+
+</ivysettings>
