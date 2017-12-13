@@ -52,4 +52,4 @@ RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ --shell /bin
 ARG PLAY_VERSION
 ENV PLAY_VERSION ${PLAY_VERSION}
 
-COPY --from=play-extracted /opt/play /opt/play
+COPY --from=play-builder /opt/play /opt/play
