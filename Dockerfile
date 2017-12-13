@@ -18,12 +18,12 @@ RUN echo "Europe/Paris" > /etc/timezone && dpkg-reconfigure -f noninteractive tz
 # configure the "inativ" user
 RUN /usr/sbin/useradd -u 1000 --create-home --home-dir /home/inativ --shell /bin/bash inativ
 
-ARG PLAY_VERSION
-ENV PLAY_VERSION ${PLAY_VERSION}
-
 ADD . /opt/app
 
 WORKDIR /opt/app
+
+ARG PLAY_VERSION
+ENV PLAY_VERSION ${PLAY_VERSION}
 
 RUN ant -f framework/build.xml package -Dversion=$PLAY_VERSION
 # TODO : voir si y a pas du ménage à faire (javadoc, samples, etc.)
