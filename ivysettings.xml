@@ -4,7 +4,7 @@
   <resolvers>
     <chain name="mavenChain" returnFirst="true">
       <ibiblio name="inativMaven" m2compatible="true" root="http://192.168.1.107/mvn_repository/"/>
-      <ibiblio name="mavenCentral" m2compatible="true"/>
+      <ibiblio name="mavenCentral" m2compatible="true" root="https://repository.inativ.fr/repository/maven-public/"/>
     </chain>
 
     <dual name="mavenDual">
