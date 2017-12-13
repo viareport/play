@@ -1,17 +1,12 @@
 <ivysettings>
 
-  <settings defaultResolver="mavenDual"/>
+  <settings defaultResolver="mavenChain"/>
   <resolvers>
     <chain name="mavenChain" returnFirst="true">
       <ibiblio name="inativMaven" m2compatible="true" root="http://192.168.1.107/mvn_repository/"/>
       <ibiblio name="mavenCentral" m2compatible="true" root="https://repository.inativ.fr/repository/maven-public/"/>
     </chain>
 
-    <dual name="mavenDual">
-      <resolver ref="mavenChain"/>
-      <resolver ref="mavenChain"/>
-    </dual>
-    
     <chain name="inativ" returnFirst="true">
       <filesystem name="inativLocal" local="true">
         <ivy pattern="${ivy.default.ivy.user.dir}/local_modules/[module]/conf/dependencies.yml"/>
