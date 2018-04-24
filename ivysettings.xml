@@ -9,7 +9,7 @@
   <settings defaultResolver="mavenDual"/>
   <resolvers>
     <chain name="mavenChain" returnFirst="true">
-      <ibiblio name="inativMaven" m2compatible="true" root="http://192.168.1.107/mvn_repository/"/>
+      <ibiblio name="inativMaven" m2compatible="true" root="http://jenkins.inativ.local/mvn_repository/"/>
       <ibiblio name="mavenCentral" m2compatible="true" root="https://repository.inativ.fr/repository/maven-public/"/>
     </chain>
 
@@ -25,8 +25,8 @@
       </filesystem>
 
       <url name="inativCentral">
-        <ivy pattern="http://192.168.1.107/repository/[module]/[revision]/dependencies.yml"/>
-        <artifact pattern="http://192.168.1.107/repository/[module]/[revision]/[module]-[revision].zip"/>
+        <ivy pattern="http://jenkins.inativ.local/repository/[module]/[revision]/dependencies.yml"/>
+        <artifact pattern="http://jenkins.inativ.local/repository/[module]/[revision]/[module]-[revision].zip"/>
       </url>
 
 
