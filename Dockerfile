@@ -1,4 +1,4 @@
-FROM openjdk:7u151-jdk as play-builder-full
+FROM openjdk:7u181-jdk as play-builder-full
 MAINTAINER mOuLiNeX & eesprit
  
 # Install Python, Ant for Play! Viareport.
@@ -18,7 +18,7 @@ RUN ant -f framework/build.xml package -Dversion=$PLAY_VERSION
 RUN unzip framework/dist/play-${PLAY_VERSION}.zip -d /tmp && mv /tmp/play-${PLAY_VERSION} /opt/play && rm -rf /opt/play/samples-and-tests/ /opt/play/documentation
 
 ### Second stage / image de build un peu plus ligh (sans le code source)
-FROM openjdk:7u151-jdk as play-builder
+FROM openjdk:7u181-jdk as play-builder
 MAINTAINER mOuLiNeX & eesprit
 
 # Install Python, Ant for Play! Viareport.
@@ -42,7 +42,7 @@ ENV PLAY_VERSION ${PLAY_VERSION}
 COPY --from=play-builder-full /opt/play /opt/play
 
 ### Third stage, notre image light
-FROM openjdk:7u151-jre-slim
+FROM openjdk:7u181-jre-slim
 MAINTAINER mOuLiNeX & eesprit
 
 RUN apt-get -y update && apt-get install -y python locales && rm -rf /var/lib/apt/lists/*
