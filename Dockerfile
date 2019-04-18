@@ -37,7 +37,7 @@ ENV LC_ALL en_US.UTF-8
 ADD ivysettings.xml /root/.ivy2/ivysettings.xml
 
 # Pour permettre les builds avec Jenkins / docker
-RUN RUN /usr/sbin/useradd -u 109 -g 113 --create-home --home-dir /home/jenkins --shell /bin/bash jenkins
+RUN /usr/sbin/useradd -u 109 -g 113 --create-home --home-dir /home/jenkins --shell /bin/bash jenkins
 
 ARG PLAY_VERSION
 ENV PLAY_VERSION ${PLAY_VERSION}
